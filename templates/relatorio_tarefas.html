@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatório de Tarefas - Auvo</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/relatorio_tarefas.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <img
+          src="{{ url_for('static', filename='img/Logo_Auvo.png') }}"
+          alt="Auvo"
+          class="logo"
+        />
+        <button class="btn-export">EXPORTAR EXCEL</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navigation Tabs -->
+      <nav class="tabs">
+        <button class="tab" data-tab="geral">GERAL</button>
+        <button class="tab active" data-tab="detalhado">DETALHADO</button>
+      </nav>
+
+      <!-- Content Container -->
+      <div class="content-container">
+        <!-- Table Section -->
+        <section class="table-section">
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>CLIENTE</th>
+                  <th>TIPO TAREFA</th>
+                  <th>DATA</th>
+                  <th>PRODUTO</th>
+                  <th>LUCRO</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Produto</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Produto</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Lucro</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Lucro</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Lucro</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Lucro</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Lucro</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+                <tr>
+                  <td>Nome</td>
+                  <td>Nome</td>
+                  <td>11/07/2025</td>
+                  <td>Lucro</td>
+                  <td class="lucro-value">R$ 999,99</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filters-section">
+          <h2 class="filters-title">FILTROS</h2>
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label>Data inicial</label>
+              <input type="date" class="filter-input" />
+            </div>
+            <div class="filter-group">
+              <label>Data final</label>
+              <input type="date" class="filter-input" />
+            </div>
+            <div class="filter-group">
+              <label>Produto</label>
+              <select class="filter-input">
+                <option value="">Todos os produtos</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Serviço</label>
+              <select class="filter-input">
+                <option value="">Todos os serviços</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Tipo de tarefa</label>
+              <select class="filter-input">
+                <option value="">Todos os tipos</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Colaborador</label>
+              <select class="filter-input">
+                <option value="">Todos os colaboradores</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-consultar">CONSULTAR</button>
+        </section>
+      </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/relatorio_tarefas.js') }}"></script>
+  </body>
+</html>

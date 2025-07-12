@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Relatório de Lucros</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <img
+          src="{{ url_for('static', filename='img/Logo_Auvo.png') }}"
+          alt="Auvo"
+          class="logo"
+        />
+        <button class="btn-export">EXPORTAR EXCEL</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navigation Tabs -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="geral">GERAL</button>
+        <button class="tab" data-tab="detalhado">DETALHADO</button>
+      </nav>
+
+      <!-- Content Container -->
+      <div class="content-container">
+        <!-- Metrics Section -->
+        <section class="metrics-section">
+          <div class="metrics-grid">
+            <!-- Faturamento Total -->
+            <div class="metric-card">
+              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-chart">
+                <div class="circular-chart purple">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path
+                      class="circle-bg"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      class="circle"
+                      stroke-dasharray="100, 100"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <text x="18" y="20.35" class="percentage">100%</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-label">FATURAMENTO TOTAL</div>
+            </div>
+
+            <!-- Faturamento Produto -->
+            <div class="metric-card">
+              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-chart">
+                <div class="circular-chart green">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path
+                      class="circle-bg"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      class="circle"
+                      stroke-dasharray="99, 100"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <text x="18" y="20.35" class="percentage">99%</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-label">FATURAMENTO PRODUTO</div>
+            </div>
+
+            <!-- Faturamento Serviço -->
+            <div class="metric-card">
+              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-chart">
+                <div class="circular-chart green">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path
+                      class="circle-bg"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      class="circle"
+                      stroke-dasharray="99, 100"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <text x="18" y="20.35" class="percentage">99%</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-label">FATURAMENTO SERVIÇO</div>
+            </div>
+
+            <!-- Lucro Total -->
+            <div class="metric-card">
+              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-chart">
+                <div class="circular-chart green">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path
+                      class="circle-bg"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      class="circle"
+                      stroke-dasharray="100, 100"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <text x="18" y="20.35" class="percentage">100%</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-label">LUCRO TOTAL</div>
+            </div>
+
+            <!-- Lucro Produto -->
+            <div class="metric-card">
+              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-chart">
+                <div class="circular-chart purple">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path
+                      class="circle-bg"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      class="circle"
+                      stroke-dasharray="99, 100"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <text x="18" y="20.35" class="percentage">99%</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-label">LUCRO PRODUTO</div>
+            </div>
+
+            <!-- Lucro Serviço -->
+            <div class="metric-card">
+              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-chart">
+                <div class="circular-chart purple">
+                  <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path
+                      class="circle-bg"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      class="circle"
+                      stroke-dasharray="99, 100"
+                      d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <text x="18" y="20.35" class="percentage">99%</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-label">LUCRO SERVIÇO</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filters-section">
+          <h2 class="filters-title">FILTROS</h2>
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label>Data inicial</label>
+              <input type="date" class="filter-input" />
+            </div>
+            <div class="filter-group">
+              <label>Data final</label>
+              <input type="date" class="filter-input" />
+            </div>
+            <div class="filter-group">
+              <label>Produto</label>
+              <select class="filter-input">
+                <option value="">Todos os produtos</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Serviço</label>
+              <select class="filter-input">
+                <option value="">Todos os serviços</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Tipo de tarefa</label>
+              <select class="filter-input">
+                <option value="">Todos os tipos</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Colaborador</label>
+              <select class="filter-input">
+                <option value="">Todos os colaboradores</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-consultar">CONSULTAR</button>
+        </section>
+      </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  </body>
+</html>

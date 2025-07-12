@@ -14,9 +14,12 @@ def create_app():
     db.init_app(app)
 
     from .View.home import home_bp
+    from .View.dashboard import dashboard_bp
+    
     app.register_blueprint(home_bp)
+    app.register_blueprint(dashboard_bp)
 
     with app.app_context():
         db.create_all()
 
-    return app 
+    return app
