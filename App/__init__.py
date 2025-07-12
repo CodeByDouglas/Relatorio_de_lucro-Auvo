@@ -19,6 +19,13 @@ def create_app():
     app.register_blueprint(home_bp)
     app.register_blueprint(dashboard_bp)
 
+    # Importar os modelos para que o SQLAlchemy os reconheça
+    from .Models import (
+        Usuario, TipoTarefa, Colaborador, Produto, Servico, Tarefa,
+        FaturamentoTotal, FaturamentoProduto, FaturamentoServico,
+        LucroTotal, LucroProduto, LucroServico
+    )
+
     with app.app_context():
         db.create_all()
 
