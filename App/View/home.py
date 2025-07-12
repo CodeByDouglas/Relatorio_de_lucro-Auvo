@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session
 from ..Controllers.auth_api import AuthController
+from ..Controllers.produtos import ProdutoController
 
 home_bp = Blueprint('home', __name__)
 
@@ -33,10 +34,22 @@ def login():
             session['authenticated'] = True
             session['access_token'] = result['data']['access_token']
             
+            # Sincroniza produtos automaticamente após login bem-sucedido
+            user_id = result['data']['user_id']
+            produtos_result = ProdutoController.fetch_and_save_products(user_id)
+            
+            # Adiciona informações sobre a sincronização de produtos na resposta
+            response_message = result['message']
+            if produtos_result['success']:
+                response_message += f" Produtos sincronizados: {produtos_result['data']['saved']} novos, {produtos_result['data']['updated']} atualizados."
+            else:
+                response_message += f" Aviso: Erro ao sincronizar produtos - {produtos_result['message']}"
+            
             return jsonify({
                 'success': True,
-                'message': result['message'],
-                'redirect_url': url_for('dashboard.dashboard')
+                'message': response_message,
+                'redirect_url': url_for('dashboard.dashboard'),
+                'produtos_sync': produtos_result
             }), 200
         else:
             return jsonify({

@@ -63,6 +63,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // Call animation after a short delay
   setTimeout(animateCharts, 500);
 
+  // Sincronização automática de produtos ao carregar o dashboard
+  syncProducts();
+
+  // Carrega filtros dinamicamente
+  loadFilters();
+
   // Set current date as default for date inputs
   const today = new Date().toISOString().split("T")[0];
   const dateInputs = document.querySelectorAll('input[type="date"]');
@@ -72,3 +78,81 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+// Função para sincronizar produtos
+function syncProducts() {
+  fetch("/api/products/sync", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log("Produtos sincronizados:", data.message);
+        // Recarrega filtros após sincronização
+        loadFilters();
+      } else {
+        console.warn("Erro na sincronização de produtos:", data.message);
+      }
+    })
+    .catch((error) => {
+      console.error("Erro ao sincronizar produtos:", error);
+    });
+}
+
+// Função para carregar filtros
+function loadFilters() {
+  fetch("/api/dashboard/filters")
+    .then((response) => response.json())
+    .then((data) => {
+      // Atualiza select de produtos
+      const produtoSelect = document.querySelector(
+        ".filter-group:nth-child(3) select"
+      );
+      if (produtoSelect && data.produtos) {
+        produtoSelect.innerHTML = '<option value="">Todos os produtos</option>';
+        data.produtos.forEach((produto) => {
+          const option = document.createElement("option");
+          option.value = produto.id;
+          option.textContent = produto.nome;
+          produtoSelect.appendChild(option);
+        });
+      }
+
+      // Atualiza outros selects conforme necessário
+      updateSelectOptions(
+        ".filter-group:nth-child(4) select",
+        data.servicos,
+        "Todos os serviços"
+      );
+      updateSelectOptions(
+        ".filter-group:nth-child(5) select",
+        data.tipos_tarefa,
+        "Todos os tipos"
+      );
+      updateSelectOptions(
+        ".filter-group:nth-child(6) select",
+        data.colaboradores,
+        "Todos os colaboradores"
+      );
+    })
+    .catch((error) => {
+      console.error("Erro ao carregar filtros:", error);
+    });
+}
+
+// Função auxiliar para atualizar selects
+function updateSelectOptions(selector, items, defaultText) {
+  const select = document.querySelector(selector);
+  if (select && items) {
+    select.innerHTML = `<option value="">${defaultText}</option>`;
+    items.forEach((item) => {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = item.nome;
+      select.appendChild(option);
+    });
+  }
+}

@@ -100,13 +100,21 @@ def export_excel():
 @dashboard_bp.route('/api/dashboard/filters')
 def get_filters():
     """Retorna as opções disponíveis para os filtros"""
-    # Dados mockados - substitua pela consulta real ao banco
+    from ..Controllers.produtos import ProdutoController
+    
+    # Busca produtos reais do banco
+    produtos_result = ProdutoController.get_products_from_database()
+    produtos_list = []
+    
+    if produtos_result['success']:
+        produtos_list = [
+            {'id': produto['id'], 'nome': produto['nome']} 
+            for produto in produtos_result['data']
+        ]
+    
+    # Dados mockados para outros filtros - substitua pela consulta real ao banco
     filters_data = {
-        'produtos': [
-            {'id': 1, 'nome': 'Produto A'},
-            {'id': 2, 'nome': 'Produto B'},
-            {'id': 3, 'nome': 'Produto C'}
-        ],
+        'produtos': produtos_list,
         'servicos': [
             {'id': 1, 'nome': 'Serviço A'},
             {'id': 2, 'nome': 'Serviço B'},
@@ -182,3 +190,92 @@ def validate_token():
         return jsonify(result), 200
     else:
         return jsonify(result), 401
+
+
+@dashboard_bp.route('/api/products/sync', methods=['POST'])
+def sync_products():
+    """API para sincronizar produtos da API Auvo"""
+    from flask import session
+    from ..Controllers.produtos import ProdutoController
+    
+    # Verifica se o usuário está autenticado
+    if not session.get('authenticated') or not session.get('user_id'):
+        return jsonify({
+            'success': False,
+            'message': 'Usuário não autenticado'
+        }), 401
+    
+    user_id = session.get('user_id')
+    
+    # Sincroniza os produtos
+    result = ProdutoController.fetch_and_save_products(user_id)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
+
+
+@dashboard_bp.route('/api/products', methods=['GET'])
+def get_products():
+    """API para obter produtos do banco de dados"""
+    from flask import request
+    from ..Controllers.produtos import ProdutoController
+    
+    # Parâmetro opcional para limitar resultados
+    limit = request.args.get('limit', type=int)
+    
+    # Busca produtos no banco
+    result = ProdutoController.get_products_from_database(limit)
+    
+    return jsonify(result), 200 if result['success'] else 400
+
+
+@dashboard_bp.route('/api/products/<product_id>', methods=['GET'])
+def get_product_by_id(product_id):
+    """API para obter um produto específico por ID"""
+    from ..Controllers.produtos import ProdutoController
+    
+    # Busca produto por ID
+    result = ProdutoController.get_product_by_id(product_id)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 404
+
+
+@dashboard_bp.route('/api/products/<product_id>/cost', methods=['PUT'])
+def update_product_cost(product_id):
+    """API para atualizar custos de um produto"""
+    from flask import request
+    from ..Controllers.produtos import ProdutoController
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({
+            'success': False,
+            'message': 'Dados não fornecidos'
+        }), 400
+    
+    custo_unitario = data.get('custo_unitario')
+    preco_unitario = data.get('preco_unitario')
+    
+    if custo_unitario is None:
+        return jsonify({
+            'success': False,
+            'message': 'Custo unitário é obrigatório'
+        }), 400
+    
+    # Atualiza o produto
+    result = ProdutoController.update_product_cost(
+        product_id, 
+        custo_unitario, 
+        preco_unitario
+    )
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
