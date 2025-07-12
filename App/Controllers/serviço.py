@@ -49,7 +49,7 @@ class ServicoController:
             }
         
         # URL da API de serviços
-        url = "https://api.auvo.com.br/v2/services/?pageSize=999"
+        url = "https://api.auvo.com.br/v2/services/?pageSize=999999999"
         
         # Headers da requisição
         headers = {

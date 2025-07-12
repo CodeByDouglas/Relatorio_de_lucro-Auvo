@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from ..Controllers.auth_api import AuthController
 from ..Controllers.produtos import ProdutoController
 from ..Controllers.serviço import ServicoController
+from ..Controllers.Colaborador import ColaboradorController
 
 home_bp = Blueprint('home', __name__)
 
@@ -42,6 +43,9 @@ def login():
             # Sincroniza serviços automaticamente após login bem-sucedido
             servicos_result = ServicoController.fetch_and_save_services(user_id)
             
+            # Sincroniza colaboradores automaticamente após login bem-sucedido
+            colaboradores_result = ColaboradorController.fetch_and_save_collaborators(user_id)
+            
             # Adiciona informações sobre a sincronização na resposta
             response_message = result['message']
             if produtos_result['success']:
@@ -54,12 +58,18 @@ def login():
             else:
                 response_message += f" Aviso: Erro ao sincronizar serviços - {servicos_result['message']}"
             
+            if colaboradores_result['success']:
+                response_message += f" Colaboradores sincronizados: {colaboradores_result['data']['saved']} novos, {colaboradores_result['data']['updated']} atualizados."
+            else:
+                response_message += f" Aviso: Erro ao sincronizar colaboradores - {colaboradores_result['message']}"
+            
             return jsonify({
                 'success': True,
                 'message': response_message,
                 'redirect_url': url_for('dashboard.dashboard'),
                 'produtos_sync': produtos_result,
-                'servicos_sync': servicos_result
+                'servicos_sync': servicos_result,
+                'colaboradores_sync': colaboradores_result
             }), 200
         else:
             return jsonify({

@@ -63,9 +63,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Call animation after a short delay
   setTimeout(animateCharts, 500);
 
-  // Sincronização automática de produtos e serviços ao carregar o dashboard
+  // Sincronização automática de produtos, serviços e colaboradores ao carregar o dashboard
   syncProducts();
   syncServices();
+  syncCollaborators();
 
   // Carrega filtros dinamicamente
   loadFilters();
@@ -123,6 +124,29 @@ function syncServices() {
     })
     .catch((error) => {
       console.error("Erro ao sincronizar serviços:", error);
+    });
+}
+
+// Função para sincronizar colaboradores
+function syncCollaborators() {
+  fetch("/api/collaborators/sync", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log("Colaboradores sincronizados:", data.message);
+        // Recarrega filtros após sincronização
+        loadFilters();
+      } else {
+        console.warn("Erro na sincronização de colaboradores:", data.message);
+      }
+    })
+    .catch((error) => {
+      console.error("Erro ao sincronizar colaboradores:", error);
     });
 }
 

@@ -102,6 +102,7 @@ def get_filters():
     """Retorna as opções disponíveis para os filtros"""
     from ..Controllers.produtos import ProdutoController
     from ..Controllers.serviço import ServicoController
+    from ..Controllers.Colaborador import ColaboradorController
     
     # Busca produtos reais do banco
     produtos_result = ProdutoController.get_products_from_database()
@@ -123,6 +124,16 @@ def get_filters():
             for servico in servicos_result['data']
         ]
     
+    # Busca colaboradores reais do banco
+    colaboradores_result = ColaboradorController.get_collaborators_from_database()
+    colaboradores_list = []
+    
+    if colaboradores_result['success']:
+        colaboradores_list = [
+            {'id': colaborador['id'], 'nome': colaborador['nome']} 
+            for colaborador in colaboradores_result['data']
+        ]
+    
     # Dados mockados para outros filtros - substitua pela consulta real ao banco
     filters_data = {
         'produtos': produtos_list,
@@ -132,11 +143,7 @@ def get_filters():
             {'id': 2, 'nome': 'Consultoria'},
             {'id': 3, 'nome': 'Suporte'}
         ],
-        'colaboradores': [
-            {'id': 1, 'nome': 'João Silva'},
-            {'id': 2, 'nome': 'Maria Santos'},
-            {'id': 3, 'nome': 'Pedro Costa'}
-        ]
+        'colaboradores': colaboradores_list
     }
     
     return jsonify(filters_data)
@@ -366,6 +373,91 @@ def update_service_cost(service_id):
     
     # Atualiza o serviço
     result = ServicoController.update_service_cost(service_id, custo_unitario)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
+
+# === ROTAS DA API PARA COLABORADORES ===
+
+@dashboard_bp.route('/api/collaborators/sync', methods=['POST'])
+def sync_collaborators():
+    """API para sincronizar colaboradores da API Auvo"""
+    from flask import session
+    from ..Controllers.Colaborador import ColaboradorController
+    
+    # Verifica se o usuário está autenticado
+    if not session.get('authenticated') or not session.get('user_id'):
+        return jsonify({
+            'success': False,
+            'message': 'Usuário não autenticado'
+        }), 401
+    
+    user_id = session.get('user_id')
+    
+    # Sincroniza os colaboradores
+    result = ColaboradorController.fetch_and_save_collaborators(user_id)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
+
+
+@dashboard_bp.route('/api/collaborators', methods=['GET'])
+def get_collaborators():
+    """API para obter colaboradores do banco de dados"""
+    from flask import request
+    from ..Controllers.Colaborador import ColaboradorController
+    
+    # Parâmetro opcional para limitar resultados
+    limit = request.args.get('limit', type=int)
+    
+    # Busca colaboradores no banco
+    result = ColaboradorController.get_collaborators_from_database(limit)
+    
+    return jsonify(result), 200 if result['success'] else 400
+
+
+@dashboard_bp.route('/api/collaborators/<int:collaborator_id>', methods=['GET'])
+def get_collaborator_by_id(collaborator_id):
+    """API para obter um colaborador específico por ID"""
+    from ..Controllers.Colaborador import ColaboradorController
+    
+    # Busca colaborador por ID
+    result = ColaboradorController.get_collaborator_by_id(collaborator_id)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 404
+
+
+@dashboard_bp.route('/api/collaborators/<int:collaborator_id>/name', methods=['PUT'])
+def update_collaborator_name(collaborator_id):
+    """API para atualizar nome de um colaborador"""
+    from flask import request
+    from ..Controllers.Colaborador import ColaboradorController
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({
+            'success': False,
+            'message': 'Dados não fornecidos'
+        }), 400
+    
+    nome = data.get('nome')
+    
+    if not nome:
+        return jsonify({
+            'success': False,
+            'message': 'Nome é obrigatório'
+        }), 400
+    
+    # Atualiza o colaborador
+    result = ColaboradorController.update_collaborator_name(collaborator_id, nome)
     
     if result['success']:
         return jsonify(result), 200
