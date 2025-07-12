@@ -63,8 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Call animation after a short delay
   setTimeout(animateCharts, 500);
 
-  // Sincronização automática de produtos ao carregar o dashboard
+  // Sincronização automática de produtos e serviços ao carregar o dashboard
   syncProducts();
+  syncServices();
 
   // Carrega filtros dinamicamente
   loadFilters();
@@ -99,6 +100,29 @@ function syncProducts() {
     })
     .catch((error) => {
       console.error("Erro ao sincronizar produtos:", error);
+    });
+}
+
+// Função para sincronizar serviços
+function syncServices() {
+  fetch("/api/services/sync", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log("Serviços sincronizados:", data.message);
+        // Recarrega filtros após sincronização
+        loadFilters();
+      } else {
+        console.warn("Erro na sincronização de serviços:", data.message);
+      }
+    })
+    .catch((error) => {
+      console.error("Erro ao sincronizar serviços:", error);
     });
 }
 

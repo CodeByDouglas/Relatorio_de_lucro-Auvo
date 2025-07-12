@@ -101,6 +101,7 @@ def export_excel():
 def get_filters():
     """Retorna as opções disponíveis para os filtros"""
     from ..Controllers.produtos import ProdutoController
+    from ..Controllers.serviço import ServicoController
     
     # Busca produtos reais do banco
     produtos_result = ProdutoController.get_products_from_database()
@@ -112,14 +113,20 @@ def get_filters():
             for produto in produtos_result['data']
         ]
     
+    # Busca serviços reais do banco
+    servicos_result = ServicoController.get_services_from_database()
+    servicos_list = []
+    
+    if servicos_result['success']:
+        servicos_list = [
+            {'id': servico['id'], 'nome': servico['nome']} 
+            for servico in servicos_result['data']
+        ]
+    
     # Dados mockados para outros filtros - substitua pela consulta real ao banco
     filters_data = {
         'produtos': produtos_list,
-        'servicos': [
-            {'id': 1, 'nome': 'Serviço A'},
-            {'id': 2, 'nome': 'Serviço B'},
-            {'id': 3, 'nome': 'Serviço C'}
-        ],
+        'servicos': servicos_list,
         'tipos_tarefa': [
             {'id': 1, 'nome': 'Desenvolvimento'},
             {'id': 2, 'nome': 'Consultoria'},
@@ -274,6 +281,91 @@ def update_product_cost(product_id):
         custo_unitario, 
         preco_unitario
     )
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
+
+# === ROTAS DA API PARA SERVIÇOS ===
+
+@dashboard_bp.route('/api/services/sync', methods=['POST'])
+def sync_services():
+    """API para sincronizar serviços da API Auvo"""
+    from flask import session
+    from ..Controllers.serviço import ServicoController
+    
+    # Verifica se o usuário está autenticado
+    if not session.get('authenticated') or not session.get('user_id'):
+        return jsonify({
+            'success': False,
+            'message': 'Usuário não autenticado'
+        }), 401
+    
+    user_id = session.get('user_id')
+    
+    # Sincroniza os serviços
+    result = ServicoController.fetch_and_save_services(user_id)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
+
+
+@dashboard_bp.route('/api/services', methods=['GET'])
+def get_services():
+    """API para obter serviços do banco de dados"""
+    from flask import request
+    from ..Controllers.serviço import ServicoController
+    
+    # Parâmetro opcional para limitar resultados
+    limit = request.args.get('limit', type=int)
+    
+    # Busca serviços no banco
+    result = ServicoController.get_services_from_database(limit)
+    
+    return jsonify(result), 200 if result['success'] else 400
+
+
+@dashboard_bp.route('/api/services/<service_id>', methods=['GET'])
+def get_service_by_id(service_id):
+    """API para obter um serviço específico por ID"""
+    from ..Controllers.serviço import ServicoController
+    
+    # Busca serviço por ID
+    result = ServicoController.get_service_by_id(service_id)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 404
+
+
+@dashboard_bp.route('/api/services/<service_id>/cost', methods=['PUT'])
+def update_service_cost(service_id):
+    """API para atualizar custo de um serviço"""
+    from flask import request
+    from ..Controllers.serviço import ServicoController
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({
+            'success': False,
+            'message': 'Dados não fornecidos'
+        }), 400
+    
+    custo_unitario = data.get('custo_unitario')
+    
+    if custo_unitario is None:
+        return jsonify({
+            'success': False,
+            'message': 'Custo unitário é obrigatório'
+        }), 400
+    
+    # Atualiza o serviço
+    result = ServicoController.update_service_cost(service_id, custo_unitario)
     
     if result['success']:
         return jsonify(result), 200
