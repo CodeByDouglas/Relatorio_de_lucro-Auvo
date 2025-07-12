@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Relatório de Lucros</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_credencial.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <img src="{{ url_for('static', filename='img/Logo_Auvo.png') }}" alt="Auvo" class="logo">
+            <h1>Digite sua <b>AppKey</b> e token para<br>acessar o relatório de lucros.</h1>
+            <form>
+                <div class="inputs-row">
+                    <div class="input-group">
+                        <label for="appkey">APPKEY <span class="info" title="AppKey disponível no painel da Auvo">&#9432;</span></label>
+                        <input type="text" id="appkey" name="appkey" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="token">TOKEN</label>
+                        <input type="password" id="token" name="token" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-consultar">Consultar</button>
+            </form>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/login_credencial.js') }}"></script>
+</body>
+</html>
