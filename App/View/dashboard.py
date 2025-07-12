@@ -125,3 +125,60 @@ def get_filters():
     }
     
     return jsonify(filters_data)
+
+@dashboard_bp.route('/api/auth/login', methods=['POST'])
+def login():
+    """API para autenticação com a API da Auvo"""
+    from flask import request
+    from ..Controllers.auth_api import AuthController
+    
+    # Captura os dados do corpo da requisição
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({
+            'success': False,
+            'message': 'Dados não fornecidos'
+        }), 400
+    
+    api_key = data.get('api_key')
+    api_token = data.get('api_token')
+    
+    if not api_key or not api_token:
+        return jsonify({
+            'success': False,
+            'message': 'API Key e API Token são obrigatórios'
+        }), 400
+    
+    # Faz a autenticação
+    result = AuthController.authenticate_auvo(api_key, api_token)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 401
+
+
+@dashboard_bp.route('/api/auth/validate', methods=['POST'])
+def validate_token():
+    """API para validar token de usuário"""
+    from flask import request
+    from ..Controllers.auth_api import AuthController
+    
+    data = request.get_json()
+    
+    if not data or not data.get('api_key'):
+        return jsonify({
+            'success': False,
+            'message': 'API Key é obrigatória'
+        }), 400
+    
+    api_key = data.get('api_key')
+    
+    # Valida o token
+    result = AuthController.validate_token(api_key)
+    
+    if result['success']:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 401

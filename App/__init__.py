@@ -9,8 +9,12 @@ def create_app():
     template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../templates'))
     static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../static'))
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+    
+    # Configurações da aplicação
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'sua-chave-secreta-aqui'  # Mude para uma chave segura
+    
     db.init_app(app)
 
     from .View.home import home_bp
