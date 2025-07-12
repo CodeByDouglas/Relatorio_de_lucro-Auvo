@@ -1,0 +1,3 @@
+# Sistema de Cálculo de Lucro Bruto – Integração com API Auvo
+
+... (conteúdo completo gerado anteriormente) ...
