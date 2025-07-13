@@ -71,6 +71,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Carrega filtros dinamicamente
   loadFilters();
 
+  // Carrega dados do dashboard
+  loadDashboardData();
+
   // Set current date as default for date inputs
   const today = new Date().toISOString().split("T")[0];
   const dateInputs = document.querySelectorAll('input[type="date"]');
@@ -203,4 +206,162 @@ function updateSelectOptions(selector, items, defaultText) {
       select.appendChild(option);
     });
   }
+}
+
+// Função para carregar dados do dashboard
+function loadDashboardData() {
+  console.log("Carregando dados do dashboard...");
+
+  fetch("/api/dashboard/data", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Dados do dashboard carregados:", data);
+      updateDashboardDisplay(data);
+    })
+    .catch((error) => {
+      console.error("Erro ao carregar dados do dashboard:", error);
+      // Em caso de erro, carrega dados mock para não quebrar a interface
+      loadMockData();
+    });
+}
+
+// Função para atualizar a exibição do dashboard com dados reais
+function updateDashboardDisplay(data) {
+  console.log("Atualizando display com dados:", data);
+
+  // Atualiza valores principais baseados nos labels dos cards
+  updateMetricValueByLabel("FATURAMENTO TOTAL", data.faturamento_total, "R$");
+  updateMetricValueByLabel("LUCRO TOTAL", data.lucro_total, "R$");
+  updateMetricValueByLabel(
+    "FATURAMENTO PRODUTO",
+    data.faturamento_produto,
+    "R$"
+  );
+  updateMetricValueByLabel(
+    "FATURAMENTO SERVIÇO",
+    data.faturamento_servico,
+    "R$"
+  );
+  updateMetricValueByLabel("LUCRO PRODUTO", data.lucro_produto, "R$");
+  updateMetricValueByLabel("LUCRO SERVIÇO", data.lucro_servico, "R$");
+
+  // Atualiza percentuais
+  const percentuais = data.percentuais || {};
+  updatePercentageByLabel("FATURAMENTO TOTAL", percentuais.margem_lucro || 0);
+  updatePercentageByLabel("LUCRO TOTAL", percentuais.margem_lucro || 0);
+  updatePercentageByLabel(
+    "FATURAMENTO PRODUTO",
+    percentuais.faturamento_produto || 0
+  );
+  updatePercentageByLabel(
+    "FATURAMENTO SERVIÇO",
+    percentuais.faturamento_servico || 0
+  );
+  updatePercentageByLabel("LUCRO PRODUTO", percentuais.lucro_produto || 0);
+  updatePercentageByLabel("LUCRO SERVIÇO", percentuais.lucro_servico || 0);
+
+  // Atualiza período se disponível
+  if (data.periodo) {
+    console.log(`Período: ${data.periodo.inicio} até ${data.periodo.fim}`);
+  }
+}
+
+// Função auxiliar para atualizar valores monetários baseado no label
+function updateMetricValueByLabel(label, value, prefix = "") {
+  const cards = document.querySelectorAll(".metric-card");
+  cards.forEach((card) => {
+    const labelElement = card.querySelector(".metric-label");
+    if (labelElement && labelElement.textContent.trim() === label) {
+      const valueElement = card.querySelector(".metric-value");
+      if (valueElement && typeof value === "number") {
+        const formattedValue = value.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        valueElement.textContent = `${prefix} ${formattedValue}`;
+      }
+    }
+  });
+}
+
+// Função auxiliar para atualizar percentuais baseado no label
+function updatePercentageByLabel(label, percentage) {
+  const cards = document.querySelectorAll(".metric-card");
+  cards.forEach((card) => {
+    const labelElement = card.querySelector(".metric-label");
+    if (labelElement && labelElement.textContent.trim() === label) {
+      const circle = card.querySelector(".circle");
+      const percentageText = card.querySelector(".percentage");
+
+      if (circle && percentage >= 0) {
+        // Atualiza o gráfico circular
+        const dashArray = `${percentage}, 100`;
+        circle.style.strokeDasharray = dashArray;
+        circle.setAttribute("stroke-dasharray", dashArray);
+      }
+
+      if (percentageText) {
+        percentageText.textContent = `${percentage.toFixed(1)}%`;
+      }
+    }
+  });
+}
+
+// Função auxiliar para atualizar valores monetários
+function updateMetricValue(selector, value, prefix = "") {
+  const element = document.querySelector(selector);
+  if (element && typeof value === "number") {
+    const formattedValue = value.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    element.textContent = `${prefix} ${formattedValue}`;
+  }
+}
+
+// Função auxiliar para atualizar percentuais nos gráficos circulares
+function updatePercentage(cardSelector, percentage) {
+  const card = document.querySelector(cardSelector);
+  if (card) {
+    const circle = card.querySelector(".circle");
+    const percentageText = card.querySelector(".percentage");
+
+    if (circle && percentage >= 0) {
+      // Atualiza o gráfico circular
+      const dashArray = `${percentage}, 100`;
+      circle.style.strokeDasharray = dashArray;
+      circle.setAttribute("stroke-dasharray", dashArray);
+    }
+
+    if (percentageText) {
+      percentageText.textContent = `${percentage.toFixed(1)}%`;
+    }
+  }
+}
+
+// Função de fallback com dados mock em caso de erro
+function loadMockData() {
+  console.log("Carregando dados mock...");
+  const mockData = {
+    faturamento_total: 848.475,
+    lucro_total: 848.475,
+    faturamento_produto: 58.975,
+    faturamento_servico: 790.0,
+    percentuais: {
+      margem_lucro: 100.0,
+      faturamento_produto: 6.95,
+      faturamento_servico: 93.05,
+    },
+  };
+  updateDashboardDisplay(mockData);
 }

@@ -1,5 +1,11 @@
-from flask import Blueprint, render_template, jsonify, request
-from datetime import datetime
+from flask import Blueprint, render_template, jsonify, request, session
+from datetime import datetime, timedelta
+from ..Controllers.tarefas import TarefaController
+from ..Models import (
+    FaturamentoTotal, FaturamentoProduto, FaturamentoServico,
+    LucroTotal, LucroProduto, LucroServico, Produto, Servico,
+    TipoTarefa, Colaborador
+)
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -16,6 +22,14 @@ def relatorio_tarefas():
 @dashboard_bp.route('/api/dashboard/data')
 def dashboard_data():
     """API para retornar dados do dashboard com filtros"""
+    
+    # Verifica se o usuário está autenticado
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({
+            'error': 'Usuário não autenticado'
+        }), 401
+    
     # Captura os filtros enviados via query parameters
     filters = {
         'data_inicial': request.args.get('data_inicial'),
@@ -26,22 +40,61 @@ def dashboard_data():
         'colaborador': request.args.get('colaborador')
     }
     
-    # Dados mockados para teste - substitua pela lógica real do banco
-    data = {
-        'faturamento_total': 999.99,
-        'faturamento_produto': 999.99,
-        'faturamento_servico': 999.99,
-        'lucro_total': 999.99,
-        'lucro_produto': 999.99,
-        'lucro_servico': 999.99,
-        'percentuais': {
-            'faturamento_total': 100,
-            'faturamento_produto': 99,
-            'faturamento_servico': 99,
-            'lucro_total': 100,
-            'lucro_produto': 99,
-            'lucro_servico': 99
+    # Define datas padrão se não fornecidas
+    from datetime import datetime, timedelta
+    if not filters['data_inicial']:
+        filters['data_inicial'] = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    
+    if not filters['data_final']:
+        filters['data_final'] = datetime.now().strftime('%Y-%m-%d')
+    
+    # Busca resumo financeiro do período
+    financial_summary = TarefaController.get_financial_summary(
+        user_id, 
+        filters['data_inicial'], 
+        filters['data_final']
+    )
+    
+    # Se não há dados, retorna valores zerados
+    if not financial_summary:
+        financial_summary = {
+            'faturamento': {
+                'total': 0,
+                'produto': 0,
+                'servico': 0,
+                'porcentagem_produto': 0,
+                'porcentagem_servico': 0
+            },
+            'lucro': {
+                'total': 0,
+                'produto': 0,
+                'servico': 0,
+                'porcentagem_produto': 0,
+                'porcentagem_servico': 0,
+                'margem_lucro': 0
+            }
         }
+    
+    # Formata os dados para o frontend
+    data = {
+        'faturamento_total': financial_summary['faturamento']['total'],
+        'faturamento_produto': financial_summary['faturamento']['produto'],
+        'faturamento_servico': financial_summary['faturamento']['servico'],
+        'lucro_total': financial_summary['lucro']['total'],
+        'lucro_produto': financial_summary['lucro']['produto'],
+        'lucro_servico': financial_summary['lucro']['servico'],
+        'percentuais': {
+            'faturamento_produto': financial_summary['faturamento']['porcentagem_produto'],
+            'faturamento_servico': financial_summary['faturamento']['porcentagem_servico'],
+            'lucro_produto': financial_summary['lucro']['porcentagem_produto'],
+            'lucro_servico': financial_summary['lucro']['porcentagem_servico'],
+            'margem_lucro': financial_summary['lucro']['margem_lucro']
+        },
+        'periodo': financial_summary.get('periodo', {
+            'inicio': filters['data_inicial'],
+            'fim': filters['data_final']
+        }),
+        'filtros_aplicados': filters
     }
     
     return jsonify(data)
@@ -49,6 +102,14 @@ def dashboard_data():
 @dashboard_bp.route('/api/dashboard/detailed-data')
 def detailed_data():
     """API para retornar dados detalhados da tabela"""
+    
+    # Verifica se o usuário está autenticado
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({
+            'error': 'Usuário não autenticado'
+        }), 401
+    
     # Captura os filtros enviados via query parameters
     filters = {
         'data_inicial': request.args.get('data_inicial'),
@@ -59,32 +120,82 @@ def detailed_data():
         'colaborador': request.args.get('colaborador')
     }
     
-    # Dados mockados para teste - substitua pela lógica real do banco
-    data = [
-        {
-            'cliente': 'Cliente A',
-            'tipo_tarefa': 'Desenvolvimento',
-            'data': '11/07/2025',
-            'produto': 'Produto A',
-            'lucro': '999,99'
-        },
-        {
-            'cliente': 'Cliente B',
-            'tipo_tarefa': 'Consultoria',
-            'data': '11/07/2025',
-            'produto': 'Produto B',
-            'lucro': '899,99'
-        },
-        {
-            'cliente': 'Cliente C',
-            'tipo_tarefa': 'Suporte',
-            'data': '11/07/2025',
-            'produto': 'Serviço A',
-            'lucro': '799,99'
-        }
-    ]
-    
-    return jsonify(data)
+    try:
+        from ..Models import Tarefa
+        from datetime import datetime
+        
+        # Define datas padrão se não fornecidas
+        if not filters['data_inicial']:
+            filters['data_inicial'] = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        
+        if not filters['data_final']:
+            filters['data_final'] = datetime.now().strftime('%Y-%m-%d')
+        
+        # Converte datas para datetime
+        data_inicial = datetime.strptime(filters['data_inicial'], '%Y-%m-%d')
+        data_final = datetime.strptime(filters['data_final'], '%Y-%m-%d')
+        
+        # Busca tarefas do usuário no período
+        query = Tarefa.query.filter_by(usuario_id=user_id).filter(
+            Tarefa.data >= data_inicial,
+            Tarefa.data <= data_final
+        )
+        
+        # Aplica filtros adicionais se fornecidos
+        if filters['tipo_tarefa']:
+            query = query.filter(Tarefa.tipo_tarefa_id == int(filters['tipo_tarefa']))
+        
+        if filters['colaborador']:
+            query = query.filter(Tarefa.colaborador_id == int(filters['colaborador']))
+        
+        tarefas = query.all()
+        
+        # Formata dados para o frontend
+        data = []
+        for tarefa in tarefas:
+            # Busca nomes relacionados
+            tipo_tarefa_nome = tarefa.tipo_tarefa.descricao if tarefa.tipo_tarefa else 'N/A'
+            colaborador_nome = tarefa.colaborador.nome if tarefa.colaborador else 'N/A'
+            
+            # Extrai produtos e serviços do JSON de detalhes
+            detalhes = tarefa.detalhes_json or {}
+            task_original = detalhes.get('task_original', {})
+            produtos = task_original.get('products', [])
+            servicos = task_original.get('services', [])
+            
+            # Monta string de produtos/serviços
+            itens_str = ""
+            if produtos:
+                produto_nomes = [p.get('nome', f"Produto {p.get('productId', 'N/A')}") for p in produtos]
+                itens_str += "Produtos: " + ", ".join(produto_nomes)
+            
+            if servicos:
+                servico_nomes = [s.get('nome', f"Serviço {s.get('id', 'N/A')}") for s in servicos]
+                if itens_str:
+                    itens_str += " | "
+                itens_str += "Serviços: " + ", ".join(servico_nomes)
+            
+            if not itens_str:
+                itens_str = "N/A"
+            
+            data.append({
+                'id': tarefa.id,
+                'cliente': tarefa.cliente or 'N/A',
+                'tipo_tarefa': tipo_tarefa_nome,
+                'colaborador': colaborador_nome,
+                'data': tarefa.data.strftime('%d/%m/%Y') if tarefa.data else 'N/A',
+                'itens': itens_str,
+                'valor_total': f"{tarefa.valor_total:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
+                'custo_total': f"{tarefa.custo_total:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
+                'lucro_bruto': f"{tarefa.lucro_bruto:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+            })
+        
+        return jsonify(data)
+        
+    except Exception as e:
+        return jsonify({
+            'error': f'Erro ao buscar dados detalhados: {str(e)}'
+        }), 500
 
 @dashboard_bp.route('/api/dashboard/export')
 def export_excel():
@@ -103,6 +214,14 @@ def get_filters():
     from ..Controllers.produtos import ProdutoController
     from ..Controllers.serviço import ServicoController
     from ..Controllers.Colaborador import ColaboradorController
+    from ..Controllers.tipo_de_tarefas import TipoTarefaController
+    
+    # Verifica se o usuário está autenticado
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({
+            'error': 'Usuário não autenticado'
+        }), 401
     
     # Busca produtos reais do banco
     produtos_result = ProdutoController.get_products_from_database()
@@ -134,15 +253,18 @@ def get_filters():
             for colaborador in colaboradores_result['data']
         ]
     
-    # Dados mockados para outros filtros - substitua pela consulta real ao banco
+    # Busca tipos de tarefa reais do banco
+    tipos_tarefa_list = TipoTarefaController.get_task_types_for_user(user_id)
+    tipos_tarefa_formatted = [
+        {'id': tipo['id'], 'nome': tipo['descricao']} 
+        for tipo in tipos_tarefa_list
+    ]
+    
+    # Dados dos filtros
     filters_data = {
         'produtos': produtos_list,
         'servicos': servicos_list,
-        'tipos_tarefa': [
-            {'id': 1, 'nome': 'Desenvolvimento'},
-            {'id': 2, 'nome': 'Consultoria'},
-            {'id': 3, 'nome': 'Suporte'}
-        ],
+        'tipos_tarefa': tipos_tarefa_formatted,
         'colaboradores': colaboradores_list
     }
     
@@ -463,3 +585,89 @@ def update_collaborator_name(collaborator_id):
         return jsonify(result), 200
     else:
         return jsonify(result), 400
+
+@dashboard_bp.route('/api/tasks/sync', methods=['POST'])
+def sync_tasks():
+    """Endpoint para sincronização manual de tarefas"""
+    
+    # Verifica se o usuário está autenticado
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({
+            'success': False,
+            'message': 'Usuário não autenticado'
+        }), 401
+    
+    try:
+        # Pega parâmetros opcionais da requisição
+        data = request.get_json() if request.is_json else {}
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        
+        # Executa sincronização de tarefas
+        result = TarefaController.fetch_and_process_tasks(user_id, start_date, end_date)
+        
+        if result['success']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Erro interno: {str(e)}'
+        }), 500
+
+@dashboard_bp.route('/api/dashboard/filters/options')
+def get_filter_options():
+    """Retorna as opções dinâmicas para os filtros baseadas no usuário logado"""
+    
+    # Verifica se o usuário está autenticado
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({
+            'error': 'Usuário não autenticado'
+        }), 401
+    
+    try:
+        # Busca produtos do usuário
+        produtos = Produto.query.filter_by(usuario_id=user_id).all()
+        produtos_list = [
+            {'id': produto.id, 'nome': produto.nome} 
+            for produto in produtos
+        ]
+        
+        # Busca serviços do usuário
+        servicos = Servico.query.filter_by(usuario_id=user_id).all()
+        servicos_list = [
+            {'id': servico.id, 'nome': servico.nome} 
+            for servico in servicos
+        ]
+        
+        # Busca tipos de tarefa do usuário
+        tipos_tarefa = TipoTarefa.query.filter_by(usuario_id=user_id).all()
+        tipos_tarefa_list = [
+            {'id': tipo.id, 'nome': tipo.descricao} 
+            for tipo in tipos_tarefa
+        ]
+        
+        # Busca colaboradores do usuário
+        colaboradores = Colaborador.query.filter_by(usuario_id=user_id).all()
+        colaboradores_list = [
+            {'id': colaborador.id, 'nome': colaborador.nome} 
+            for colaborador in colaboradores
+        ]
+        
+        filters_data = {
+            'produtos': produtos_list,
+            'servicos': servicos_list,
+            'tipos_tarefa': tipos_tarefa_list,
+            'colaboradores': colaboradores_list
+        }
+        
+        return jsonify(filters_data)
+        
+    except Exception as e:
+        return jsonify({
+            'error': f'Erro ao buscar opções de filtro: {str(e)}'
+        }), 500

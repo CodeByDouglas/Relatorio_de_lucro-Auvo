@@ -3,6 +3,8 @@ from ..Controllers.auth_api import AuthController
 from ..Controllers.produtos import ProdutoController
 from ..Controllers.serviço import ServicoController
 from ..Controllers.Colaborador import ColaboradorController
+from ..Controllers.tipo_de_tarefas import TipoTarefaController
+from ..Controllers.tarefas import TarefaController
 
 home_bp = Blueprint('home', __name__)
 
@@ -46,6 +48,12 @@ def login():
             # Sincroniza colaboradores automaticamente após login bem-sucedido
             colaboradores_result = ColaboradorController.fetch_and_save_collaborators(user_id)
             
+            # Sincroniza tipos de tarefa automaticamente após login bem-sucedido
+            tipos_tarefa_result = TipoTarefaController.fetch_and_save_task_types(user_id)
+            
+            # Sincroniza tarefas e calcula dados financeiros automaticamente após login bem-sucedido
+            tarefas_result = TarefaController.fetch_and_process_tasks(user_id)
+            
             # Adiciona informações sobre a sincronização na resposta
             response_message = result['message']
             if produtos_result['success']:
@@ -63,13 +71,25 @@ def login():
             else:
                 response_message += f" Aviso: Erro ao sincronizar colaboradores - {colaboradores_result['message']}"
             
+            if tipos_tarefa_result['success']:
+                response_message += f" Tipos de tarefa sincronizados: {tipos_tarefa_result['data']['saved']} novos, {tipos_tarefa_result['data']['updated']} atualizados."
+            else:
+                response_message += f" Aviso: Erro ao sincronizar tipos de tarefa - {tipos_tarefa_result['message']}"
+            
+            if tarefas_result['success']:
+                response_message += f" Tarefas processadas: {tarefas_result['data']['tasks_processed']}, dados financeiros calculados."
+            else:
+                response_message += f" Aviso: Erro ao processar tarefas - {tarefas_result['message']}"
+            
             return jsonify({
                 'success': True,
                 'message': response_message,
                 'redirect_url': url_for('dashboard.dashboard'),
                 'produtos_sync': produtos_result,
                 'servicos_sync': servicos_result,
-                'colaboradores_sync': colaboradores_result
+                'colaboradores_sync': colaboradores_result,
+                'tipos_tarefa_sync': tipos_tarefa_result,
+                'tarefas_sync': tarefas_result
             }), 200
         else:
             return jsonify({
