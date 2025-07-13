@@ -3,3 +3,18 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
+
+# Arquivos de teste
+test_*.py
+debug_*.py
+
+# Arquivos específicos de teste criados
+test_integration.py
+test_api_colaboradores.py
+test_api_tarefas.py
+test_cost_conversion.py
+test_simple.py
+test_colaboradores.py
+debug_products_api.py
+test_colaboradores.py
+test_api_colaboradores.py
