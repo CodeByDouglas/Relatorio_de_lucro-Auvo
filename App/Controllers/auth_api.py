@@ -221,12 +221,12 @@ class AuthController:
                     'valid': False
                 }
             
-            # Aqui você pode adicionar lógica para verificar se o token expirou
-            # Por exemplo, verificar se passou mais de 30 minutos desde token_obtido_em
+           
+            # verificar se passou mais de 28 minutos desde token_obtido_em
             time_diff = datetime.now() - usuario.token_obtido_em
             
-            # Considerando que o token expira em 30 minutos (1800 segundos)
-            if time_diff.total_seconds() > 1800:
+            # Considerando que o token expira em 30 minutos (1680 segundos mantendo 2 mim de margem de erro)
+            if time_diff.total_seconds() > 1.680:
                 return {
                     'success': True,
                     'message': 'Token expirado',
