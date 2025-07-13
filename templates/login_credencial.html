@@ -12,6 +12,14 @@
   <body>
     <div class="container">
       <div class="login-box">
+        <div class="info-container">
+          <span class="info info-top">?</span>
+          <div class="tooltip">
+            Para obter as credenciais, acesse o Auvo, clique no nome da sua
+            empresa no canto superior direito e vá até a aba "Integração". Você
+            verá suas credenciais logo abaixo do título "Chaves de integração".
+          </div>
+        </div>
         <img
           src="{{ url_for('static', filename='img/Logo_Auvo.png') }}"
           alt="Auvo"
@@ -19,17 +27,12 @@
         />
         <h1>
           Digite sua <b>AppKey</b> e token para<br />acessar o relatório de
-          lucros.
+          lucros
         </h1>
         <form id="loginForm">
           <div class="inputs-row">
             <div class="input-group">
-              <label for="appkey"
-                >APPKEY
-                <span class="info" title="AppKey disponível no painel da Auvo"
-                  >&#9432;</span
-                ></label
-              >
+              <label for="appkey">APPKEY</label>
               <input type="text" id="appkey" name="appkey" required />
             </div>
             <div class="input-group">
