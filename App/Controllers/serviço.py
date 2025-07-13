@@ -71,7 +71,7 @@ class ServicoController:
                         services_list = data['result']['entityList']
                         
                         # Salva os serviços no banco
-                        save_result = ServicoController._save_services_to_database(services_list)
+                        save_result = ServicoController._save_services_to_database(services_list, usuario.id)
                         
                         return {
                             'success': True,
@@ -135,12 +135,13 @@ class ServicoController:
             }
     
     @staticmethod
-    def _save_services_to_database(services_list):
+    def _save_services_to_database(services_list, usuario_id):
         """
         Salva ou atualiza serviços no banco de dados
         
         Args:
             services_list (list): Lista de serviços da API
+            usuario_id (int): ID do usuário dono dos serviços
             
         Returns:
             dict: Estatísticas da operação
@@ -174,8 +175,11 @@ class ServicoController:
                     except (ValueError, AttributeError):
                         price = 0.0
                     
-                    # Busca serviço existente
-                    servico_existente = Servico.query.filter_by(id=service_id).first()
+                    # Busca serviço existente para este usuário
+                    servico_existente = Servico.query.filter_by(
+                        id=service_id,
+                        usuario_id=usuario_id
+                    ).first()
                     
                     if servico_existente:
                         # Atualiza serviço existente
@@ -186,6 +190,7 @@ class ServicoController:
                         # Cria novo serviço
                         novo_servico = Servico(
                             id=service_id,
+                            usuario_id=usuario_id,
                             nome=title,
                             custo_unitario=price
                         )

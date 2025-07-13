@@ -78,7 +78,7 @@ class ColaboradorController:
                             print(f"DEBUG: Colaborador {i+1}: {collab}")
                         
                         # Salva os colaboradores no banco
-                        save_result = ColaboradorController._save_collaborators_to_database(collaborators_list)
+                        save_result = ColaboradorController._save_collaborators_to_database(collaborators_list, usuario.id)
                         
                         return {
                             'success': True,
@@ -142,12 +142,13 @@ class ColaboradorController:
             }
     
     @staticmethod
-    def _save_collaborators_to_database(collaborators_list):
+    def _save_collaborators_to_database(collaborators_list, usuario_id):
         """
         Salva ou atualiza colaboradores no banco de dados
         
         Args:
             collaborators_list (list): Lista de colaboradores da API
+            usuario_id (int): ID do usuário dono dos colaboradores
             
         Returns:
             dict: Estatísticas da operação
@@ -180,8 +181,11 @@ class ColaboradorController:
                         name = f"Colaborador {user_id}"
                         print(f"DEBUG: Nome vazio, usando nome padrão: {name}")
                     
-                    # Busca colaborador existente
-                    colaborador_existente = Colaborador.query.filter_by(id=user_id).first()
+                    # Busca colaborador existente para este usuário
+                    colaborador_existente = Colaborador.query.filter_by(
+                        id=user_id, 
+                        usuario_id=usuario_id
+                    ).first()
                     
                     if colaborador_existente:
                         # Atualiza colaborador existente
@@ -192,6 +196,7 @@ class ColaboradorController:
                         # Cria novo colaborador
                         novo_colaborador = Colaborador(
                             id=user_id,
+                            usuario_id=usuario_id,
                             nome=name
                         )
                         db.session.add(novo_colaborador)

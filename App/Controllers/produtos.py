@@ -66,12 +66,22 @@ class ProdutoController:
                 try:
                     data = response.json()
                     
+                    # DEBUG: Imprimir estrutura da resposta
+                    print(f"DEBUG: Estrutura da resposta: {list(data.keys())}")
+                    
                     # Verifica se a estrutura da resposta está correta
                     if 'result' in data and 'entityList' in data['result']:
                         products_list = data['result']['entityList']
                         
+                        # DEBUG: Imprimir primeiro produto se existir
+                        if len(products_list) > 0:
+                            primeiro_produto = products_list[0]
+                            print(f"DEBUG: Primeiro produto - ID: {primeiro_produto.get('productId', 'N/A')}")
+                            print(f"DEBUG: Primeiro produto - Nome: {primeiro_produto.get('name', 'N/A')}")
+                            print(f"DEBUG: Primeiro produto - Custo: {primeiro_produto.get('unitaryCost', 'N/A')}")
+                        
                         # Salva os produtos no banco
-                        save_result = ProdutoController._save_products_to_database(products_list)
+                        save_result = ProdutoController._save_products_to_database(products_list, usuario.id)
                         
                         return {
                             'success': True,
@@ -135,12 +145,13 @@ class ProdutoController:
             }
     
     @staticmethod
-    def _save_products_to_database(products_list):
+    def _save_products_to_database(products_list, usuario_id):
         """
         Salva ou atualiza produtos no banco de dados
         
         Args:
             products_list (list): Lista de produtos da API
+            usuario_id (int): ID do usuário dono dos produtos
             
         Returns:
             dict: Estatísticas da operação
@@ -168,14 +179,31 @@ class ProdutoController:
                         name = f"Produto {product_id}"
                     
                     # Converte o custo unitário de string para float
-                    # Remove vírgulas e converte para float (formato brasileiro: "6,00" -> 6.0)
+                    # A API pode retornar formato americano ($6.00) ou brasileiro (6,00)
                     try:
-                        unitary_cost = float(unitary_cost_str.replace(',', '.')) if unitary_cost_str else 0.0
-                    except (ValueError, AttributeError):
+                        if isinstance(unitary_cost_str, str):
+                            # Remove símbolos de moeda e espaços
+                            clean_cost = unitary_cost_str.replace('$', '').replace('R$', '').replace('R ', '').strip()
+                            
+                            # Se contém vírgula, assume formato brasileiro (6,00)
+                            if ',' in clean_cost and '.' not in clean_cost:
+                                unitary_cost = float(clean_cost.replace(',', '.'))
+                            # Se contém ponto, assume formato americano (6.00)
+                            elif '.' in clean_cost:
+                                unitary_cost = float(clean_cost)
+                            # Se não contém nem vírgula nem ponto, tenta converter direto
+                            else:
+                                unitary_cost = float(clean_cost) if clean_cost else 0.0
+                        else:
+                            unitary_cost = float(unitary_cost_str) if unitary_cost_str is not None else 0.0
+                    except (ValueError, AttributeError) as e:
                         unitary_cost = 0.0
                     
-                    # Busca produto existente
-                    produto_existente = Produto.query.filter_by(id=product_id).first()
+                    # Busca produto existente para este usuário
+                    produto_existente = Produto.query.filter_by(
+                        id=product_id,
+                        usuario_id=usuario_id
+                    ).first()
                     
                     if produto_existente:
                         # Atualiza produto existente
@@ -186,6 +214,7 @@ class ProdutoController:
                         # Cria novo produto
                         novo_produto = Produto(
                             id=product_id,
+                            usuario_id=usuario_id,
                             nome=name,
                             custo_unitario=unitary_cost,
                             preco_unitario=None  # Pode ser definido posteriormente
