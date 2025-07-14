@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Função para alternar entre as abas
-  const tabs = document.querySelectorAll(".tab");
+  // Função para alternar entre as abas do header
+  const headerTabs = document.querySelectorAll(".header-tab");
 
-  tabs.forEach((tab) => {
+  headerTabs.forEach((tab) => {
     tab.addEventListener("click", function () {
       const tabType = this.dataset.tab;
 
@@ -51,6 +51,91 @@ document.addEventListener("DOMContentLoaded", function () {
       // Fazer requisição para API
       fetchDetailedData(filters);
     });
+  }
+
+  // Set current date as default for date inputs
+  const today = new Date().toISOString().split("T")[0];
+  const dateInputs = document.querySelectorAll('input[type="date"]');
+  dateInputs.forEach((input) => {
+    if (!input.value) {
+      input.value = today;
+    }
+  });
+
+  // Load filter options from API
+  loadFilterOptions();
+
+  // Função para carregar opções dos filtros
+  function loadFilterOptions() {
+    fetch("/api/dashboard/filters/options")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Dados dos filtros recebidos:", data);
+
+        // Popular filtros corretamente identificando cada campo pelo label
+        const filterGroups = document.querySelectorAll(".filter-group");
+        filterGroups.forEach((group) => {
+          const label = group.querySelector("label");
+          const select = group.querySelector("select");
+
+          if (label && select) {
+            const labelText = label.textContent.toLowerCase().trim();
+
+            if (labelText.includes("produto")) {
+              // Limpa opções existentes exceto a primeira
+              while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+              }
+
+              data.produtos.forEach((produto) => {
+                const option = document.createElement("option");
+                option.value = produto.id;
+                option.textContent = produto.nome;
+                select.appendChild(option);
+              });
+            } else if (labelText.includes("serviço")) {
+              // Limpa opções existentes exceto a primeira
+              while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+              }
+
+              data.servicos.forEach((servico) => {
+                const option = document.createElement("option");
+                option.value = servico.id;
+                option.textContent = servico.nome;
+                select.appendChild(option);
+              });
+            } else if (labelText.includes("tipo")) {
+              // Limpa opções existentes exceto a primeira
+              while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+              }
+
+              data.tipos_tarefa.forEach((tipo) => {
+                const option = document.createElement("option");
+                option.value = tipo.id;
+                option.textContent = tipo.nome;
+                select.appendChild(option);
+              });
+            } else if (labelText.includes("colaborador")) {
+              // Limpa opções existentes exceto a primeira
+              while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+              }
+
+              data.colaboradores.forEach((colaborador) => {
+                const option = document.createElement("option");
+                option.value = colaborador.id;
+                option.textContent = colaborador.nome;
+                select.appendChild(option);
+              });
+            }
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar opções de filtro:", error);
+      });
   }
 
   // Função para exportar tabela para Excel
@@ -109,13 +194,4 @@ document.addEventListener("DOMContentLoaded", function () {
       tbody.appendChild(row);
     });
   }
-
-  // Set current date as default for date inputs
-  const today = new Date().toISOString().split("T")[0];
-  const dateInputs = document.querySelectorAll('input[type="date"]');
-  dateInputs.forEach((input) => {
-    if (!input.value) {
-      input.value = today;
-    }
-  });
 });

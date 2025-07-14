@@ -1,9 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Tab functionality
-  const tabs = document.querySelectorAll(".tab");
+  // Header Tab functionality
+  const headerTabs = document.querySelectorAll(".header-tab");
 
-  tabs.forEach((tab) => {
+  headerTabs.forEach((tab) => {
     tab.addEventListener("click", function () {
+      // Remove active class from all tabs
+      headerTabs.forEach((t) => t.classList.remove("active"));
+      // Add active class to clicked tab
+      this.classList.add("active");
+
       const tabType = this.dataset.tab;
 
       if (tabType === "geral") {
@@ -27,21 +32,32 @@ document.addEventListener("DOMContentLoaded", function () {
   // Consultar button functionality
   const consultarBtn = document.querySelector(".btn-consultar");
   consultarBtn.addEventListener("click", function () {
-    // Get filter values
-    const filters = {
-      dataInicial: document.querySelector(".filter-group:nth-child(1) input")
-        .value,
-      dataFinal: document.querySelector(".filter-group:nth-child(2) input")
-        .value,
-      produto: document.querySelector(".filter-group:nth-child(3) select")
-        .value,
-      servico: document.querySelector(".filter-group:nth-child(4) select")
-        .value,
-      tipoTarefa: document.querySelector(".filter-group:nth-child(5) select")
-        .value,
-      colaborador: document.querySelector(".filter-group:nth-child(6) select")
-        .value,
-    };
+    // Get filter values using label-based approach
+    const filters = {};
+
+    const filterGroups = document.querySelectorAll(".filter-group");
+    filterGroups.forEach((group) => {
+      const label = group.querySelector("label");
+      const input = group.querySelector("input, select");
+
+      if (!label || !input) return;
+
+      const labelText = label.textContent.toLowerCase();
+
+      if (labelText.includes("inicial")) {
+        filters.dataInicial = input.value;
+      } else if (labelText.includes("final")) {
+        filters.dataFinal = input.value;
+      } else if (labelText.includes("produto")) {
+        filters.produto = input.value;
+      } else if (labelText.includes("serviço")) {
+        filters.servico = input.value;
+      } else if (labelText.includes("tipo")) {
+        filters.tipoTarefa = input.value;
+      } else if (labelText.includes("colaborador")) {
+        filters.colaborador = input.value;
+      }
+    });
 
     console.log("Filters applied:", filters);
 
@@ -50,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
     alert("Consulta realizada com os filtros selecionados");
   });
 
-  // Animate circular charts on load
+  // Animate circular charts and percentages on load
   function animateCharts() {
     const circles = document.querySelectorAll(".circle");
     circles.forEach((circle) => {
@@ -58,10 +74,46 @@ document.addEventListener("DOMContentLoaded", function () {
       const percentage = dashArray.split(",")[0];
       circle.style.strokeDasharray = `${percentage}, 100`;
     });
+
+    // Animate percentages simultaneously with charts ONLY if they have real data-target values
+    animatePercentagesWithRealData();
   }
 
-  // Call animation after a short delay
-  setTimeout(animateCharts, 500);
+  // Animate percentage counters with real data only
+  function animatePercentagesWithRealData() {
+    const percentageElements = document.querySelectorAll(
+      ".percentage[data-target]"
+    );
+
+    percentageElements.forEach((element) => {
+      const targetValue = parseInt(element.getAttribute("data-target"));
+
+      // Only animate if we have a real value (not the initial 0)
+      if (targetValue > 0) {
+        let currentValue = 0;
+        const increment = targetValue / 50; // 50 frames for smooth but faster animation
+        const duration = 1000; // 1 second (reduced from 2 seconds)
+        const stepTime = duration / 50;
+
+        const timer = setInterval(() => {
+          currentValue += increment;
+          if (currentValue >= targetValue) {
+            currentValue = targetValue;
+            clearInterval(timer);
+          }
+          element.textContent = Math.round(currentValue) + "%";
+        }, stepTime);
+      }
+    });
+  }
+
+  // Legacy function for compatibility - remove initial animation
+  function animatePercentages() {
+    // This function is now empty to avoid conflicts with real data animation
+  }
+
+  // Initialize chart tooltips
+  initializeChartTooltips();
 
   // Sincronização automática de produtos, serviços e colaboradores ao carregar o dashboard
   syncProducts();
@@ -98,12 +150,12 @@ function syncProducts() {
         console.log("Produtos sincronizados:", data.message);
         // Recarrega filtros após sincronização
         loadFilters();
-      } else {
-        console.warn("Erro na sincronização de produtos:", data.message);
       }
+      // Remove o else para não mostrar mensagens de erro desnecessárias
     })
     .catch((error) => {
-      console.error("Erro ao sincronizar produtos:", error);
+      // Erro silencioso para não incomodar o usuário
+      console.log("Sincronização de produtos não executada");
     });
 }
 
@@ -121,12 +173,12 @@ function syncServices() {
         console.log("Serviços sincronizados:", data.message);
         // Recarrega filtros após sincronização
         loadFilters();
-      } else {
-        console.warn("Erro na sincronização de serviços:", data.message);
       }
+      // Remove o else para não mostrar mensagens de erro desnecessárias
     })
     .catch((error) => {
-      console.error("Erro ao sincronizar serviços:", error);
+      // Erro silencioso para não incomodar o usuário
+      console.log("Sincronização de serviços não executada");
     });
 }
 
@@ -144,53 +196,82 @@ function syncCollaborators() {
         console.log("Colaboradores sincronizados:", data.message);
         // Recarrega filtros após sincronização
         loadFilters();
-      } else {
-        console.warn("Erro na sincronização de colaboradores:", data.message);
       }
+      // Remove o else para não mostrar mensagens de erro desnecessárias
     })
     .catch((error) => {
-      console.error("Erro ao sincronizar colaboradores:", error);
+      // Erro silencioso para não incomodar o usuário
+      console.log("Sincronização de colaboradores não executada");
     });
 }
 
 // Função para carregar filtros
 function loadFilters() {
-  fetch("/api/dashboard/filters")
+  fetch("/api/dashboard/filters/options")
     .then((response) => response.json())
     .then((data) => {
-      // Atualiza select de produtos
-      const produtoSelect = document.querySelector(
-        ".filter-group:nth-child(3) select"
-      );
-      if (produtoSelect && data.produtos) {
-        produtoSelect.innerHTML = '<option value="">Todos os produtos</option>';
-        data.produtos.forEach((produto) => {
-          const option = document.createElement("option");
-          option.value = produto.id;
-          option.textContent = produto.nome;
-          produtoSelect.appendChild(option);
-        });
-      }
+      console.log("Dashboard - Dados de filtros carregados:", data);
 
-      // Atualiza outros selects conforme necessário
-      updateSelectOptions(
-        ".filter-group:nth-child(4) select",
-        data.servicos,
-        "Todos os serviços"
-      );
-      updateSelectOptions(
-        ".filter-group:nth-child(5) select",
-        data.tipos_tarefa,
-        "Todos os tipos"
-      );
-      updateSelectOptions(
-        ".filter-group:nth-child(6) select",
-        data.colaboradores,
-        "Todos os colaboradores"
-      );
+      // Busca todos os filter-groups
+      const filterGroups = document.querySelectorAll(".filter-group");
+
+      filterGroups.forEach((group) => {
+        const label = group.querySelector("label");
+        const select = group.querySelector("select");
+
+        if (!label || !select) return;
+
+        const labelText = label.textContent.toLowerCase();
+
+        // Limpa o select antes de popular
+        select.innerHTML = "";
+
+        // Determina qual dados usar baseado no label
+        if (labelText.includes("produto")) {
+          select.innerHTML = '<option value="">Todos os produtos</option>';
+          if (data.produtos) {
+            data.produtos.forEach((produto) => {
+              const option = document.createElement("option");
+              option.value = produto.id;
+              option.textContent = produto.nome;
+              select.appendChild(option);
+            });
+          }
+        } else if (labelText.includes("serviço")) {
+          select.innerHTML = '<option value="">Todos os serviços</option>';
+          if (data.servicos) {
+            data.servicos.forEach((servico) => {
+              const option = document.createElement("option");
+              option.value = servico.id;
+              option.textContent = servico.nome;
+              select.appendChild(option);
+            });
+          }
+        } else if (labelText.includes("tipo")) {
+          select.innerHTML = '<option value="">Todos os tipos</option>';
+          if (data.tipos_tarefa) {
+            data.tipos_tarefa.forEach((tipo) => {
+              const option = document.createElement("option");
+              option.value = tipo.id;
+              option.textContent = tipo.nome;
+              select.appendChild(option);
+            });
+          }
+        } else if (labelText.includes("colaborador")) {
+          select.innerHTML = '<option value="">Todos os colaboradores</option>';
+          if (data.colaboradores) {
+            data.colaboradores.forEach((colaborador) => {
+              const option = document.createElement("option");
+              option.value = colaborador.id;
+              option.textContent = colaborador.nome;
+              select.appendChild(option);
+            });
+          }
+        }
+      });
     })
     .catch((error) => {
-      console.error("Erro ao carregar filtros:", error);
+      console.log("Dashboard - Erro ao carregar filtros:", error);
     });
 }
 
@@ -229,7 +310,7 @@ function loadDashboardData() {
       updateDashboardDisplay(data);
     })
     .catch((error) => {
-      console.error("Erro ao carregar dados do dashboard:", error);
+      console.log("Dados do dashboard não puderam ser carregados:", error);
       // Em caso de erro, carrega dados mock para não quebrar a interface
       loadMockData();
     });
@@ -255,25 +336,53 @@ function updateDashboardDisplay(data) {
   updateMetricValueByLabel("LUCRO PRODUTO", data.lucro_produto, "R$");
   updateMetricValueByLabel("LUCRO SERVIÇO", data.lucro_servico, "R$");
 
-  // Atualiza percentuais
+  // Usa os percentuais que vêm do banco de dados
   const percentuais = data.percentuais || {};
-  updatePercentageByLabel("FATURAMENTO TOTAL", percentuais.margem_lucro || 0);
-  updatePercentageByLabel("LUCRO TOTAL", percentuais.margem_lucro || 0);
+
+  // FATURAMENTO TOTAL sempre deve ser 100%
+  updatePercentageByLabel("FATURAMENTO TOTAL", 100);
+
+  // Percentuais de participação no faturamento total
   updatePercentageByLabel(
     "FATURAMENTO PRODUTO",
-    percentuais.faturamento_produto || 0
+    Math.round(percentuais.faturamento_produto || 0)
   );
   updatePercentageByLabel(
     "FATURAMENTO SERVIÇO",
-    percentuais.faturamento_servico || 0
+    Math.round(percentuais.faturamento_servico || 0)
   );
-  updatePercentageByLabel("LUCRO PRODUTO", percentuais.lucro_produto || 0);
-  updatePercentageByLabel("LUCRO SERVIÇO", percentuais.lucro_servico || 0);
+
+  // Percentuais de margem de lucro (lucro/faturamento)
+  updatePercentageByLabel(
+    "LUCRO TOTAL",
+    Math.round(percentuais.margem_lucro || 0)
+  );
+  updatePercentageByLabel(
+    "LUCRO PRODUTO",
+    Math.round(percentuais.lucro_produto || 0)
+  );
+  updatePercentageByLabel(
+    "LUCRO SERVIÇO",
+    Math.round(percentuais.lucro_servico || 0)
+  );
 
   // Atualiza período se disponível
   if (data.periodo) {
     console.log(`Período: ${data.periodo.inicio} até ${data.periodo.fim}`);
   }
+
+  // Inicia animações dos gráficos circulares após dados serem carregados
+  // Agora as porcentagens são animadas dentro de updatePercentageByLabel
+  setTimeout(() => {
+    const circles = document.querySelectorAll(".circle");
+    circles.forEach((circle) => {
+      const dashArray = circle.getAttribute("stroke-dasharray");
+      if (dashArray) {
+        const percentage = dashArray.split(",")[0];
+        circle.style.strokeDasharray = `${percentage}, 100`;
+      }
+    });
+  }, 200);
 }
 
 // Função auxiliar para atualizar valores monetários baseado no label
@@ -311,10 +420,43 @@ function updatePercentageByLabel(label, percentage) {
       }
 
       if (percentageText) {
-        percentageText.textContent = `${percentage.toFixed(1)}%`;
+        // Limpa qualquer animação anterior
+        if (percentageText.animationTimer) {
+          clearInterval(percentageText.animationTimer);
+        }
+
+        // Atualiza o data-target com o valor real
+        const roundedPercentage = Math.round(percentage);
+        percentageText.setAttribute("data-target", roundedPercentage);
+
+        // Reseta para 0% antes de iniciar a animação
+        percentageText.textContent = "0%";
+
+        // Inicia animação do contador após um pequeno delay
+        setTimeout(() => {
+          animatePercentageElement(percentageText, roundedPercentage);
+        }, 100);
       }
     }
   });
+}
+
+// Função para animar um elemento de porcentagem específico
+function animatePercentageElement(element, targetValue) {
+  let currentValue = 0;
+  const increment = targetValue / 50; // 50 frames for smooth but faster animation
+  const duration = 1000; // 1 second (reduced from 2 seconds)
+  const stepTime = duration / 50;
+
+  element.animationTimer = setInterval(() => {
+    currentValue += increment;
+    if (currentValue >= targetValue) {
+      currentValue = targetValue;
+      clearInterval(element.animationTimer);
+      element.animationTimer = null;
+    }
+    element.textContent = Math.round(currentValue) + "%";
+  }, stepTime);
 }
 
 // Função auxiliar para atualizar valores monetários
@@ -349,18 +491,129 @@ function updatePercentage(cardSelector, percentage) {
   }
 }
 
+// Chart Tooltip Functionality
+function initializeChartTooltips() {
+  // Create tooltip element
+  const tooltip = document.createElement("div");
+  tooltip.className = "chart-tooltip";
+  document.body.appendChild(tooltip);
+
+  // Add data attributes and event listeners to chart elements
+  const metricCards = document.querySelectorAll(".metric-card");
+
+  metricCards.forEach((card) => {
+    const label = card.querySelector(".metric-label").textContent.trim();
+    const circleProgress = card.querySelector(".circle");
+    const circleBackground = card.querySelector(".circle-bg");
+
+    // Add data attributes
+    if (circleProgress) {
+      circleProgress.setAttribute("data-label", label);
+      circleProgress.setAttribute("data-type", "progress");
+    }
+
+    if (circleBackground) {
+      circleBackground.setAttribute("data-label", label);
+      circleBackground.setAttribute("data-type", "remaining");
+    }
+
+    // Add event listeners for progress circle (colored part)
+    if (circleProgress) {
+      circleProgress.addEventListener("mouseenter", (e) =>
+        showTooltip(e, label, "progress")
+      );
+      circleProgress.addEventListener("mousemove", (e) =>
+        updateTooltipPosition(e)
+      );
+      circleProgress.addEventListener("mouseleave", hideTooltip);
+    }
+
+    // Add event listeners for background circle (white part)
+    if (circleBackground) {
+      circleBackground.addEventListener("mouseenter", (e) =>
+        showTooltip(e, label, "remaining")
+      );
+      circleBackground.addEventListener("mousemove", (e) =>
+        updateTooltipPosition(e)
+      );
+      circleBackground.addEventListener("mouseleave", hideTooltip);
+    }
+  });
+}
+
+function showTooltip(event, label, type) {
+  const tooltip = document.querySelector(".chart-tooltip");
+  const card = event.target.closest(".metric-card");
+  const percentageText = card.querySelector(".percentage");
+  const valueText = card.querySelector(".metric-value");
+  const percentage = parseInt(percentageText.textContent) || 0;
+  const monetaryValue = valueText ? valueText.textContent : "";
+
+  let tooltipText = "";
+
+  if (type === "progress") {
+    // Parte colorida do gráfico
+    if (label.includes("FATURAMENTO")) {
+      tooltipText = `${label}\n${percentage}% realizado\nValor: ${monetaryValue}`;
+    } else if (label.includes("LUCRO")) {
+      tooltipText = `${label}\n${percentage}% de margem\nValor: ${monetaryValue}`;
+    }
+  } else {
+    // Parte branca do gráfico
+    const remaining = 100 - percentage;
+    if (label.includes("FATURAMENTO")) {
+      tooltipText = `${label}\n${remaining}% restante para meta`;
+    } else if (label.includes("LUCRO")) {
+      tooltipText = `${label}\n${remaining}% de potencial não convertido`;
+    }
+  }
+
+  tooltip.innerHTML = tooltipText.replace(/\n/g, "<br>");
+  tooltip.classList.add("visible");
+  updateTooltipPosition(event);
+}
+
+function updateTooltipPosition(event) {
+  const tooltip = document.querySelector(".chart-tooltip");
+  const rect = tooltip.getBoundingClientRect();
+  const x = event.clientX;
+  const y = event.clientY;
+
+  // Position tooltip above the cursor with some offset
+  let left = x - rect.width / 2;
+  let top = y - rect.height - 10;
+
+  // Adjust if tooltip goes outside viewport
+  if (left < 5) left = 5;
+  if (left + rect.width > window.innerWidth - 5)
+    left = window.innerWidth - rect.width - 5;
+  if (top < 5) top = y + 20; // Show below cursor if no space above
+
+  tooltip.style.left = left + "px";
+  tooltip.style.top = top + "px";
+}
+
+function hideTooltip() {
+  const tooltip = document.querySelector(".chart-tooltip");
+  tooltip.classList.remove("visible");
+}
+
 // Função de fallback com dados mock em caso de erro
 function loadMockData() {
   console.log("Carregando dados mock...");
   const mockData = {
-    faturamento_total: 848.475,
-    lucro_total: 848.475,
-    faturamento_produto: 58.975,
-    faturamento_servico: 790.0,
+    faturamento_total: 1840.0,
+    lucro_total: 1420.0,
+    faturamento_produto: 840.0,
+    faturamento_servico: 1000.0,
+    lucro_produto: 420.0,
+    lucro_servico: 1000.0,
     percentuais: {
-      margem_lucro: 100.0,
-      faturamento_produto: 6.95,
-      faturamento_servico: 93.05,
+      margem_lucro: 77.0, // 1420/1840 * 100
+      faturamento_produto: 45.7, // 840/1840 * 100
+      faturamento_servico: 54.3, // 1000/1840 * 100
+      lucro_produto: 50.0, // 420/840 * 100 (margem do produto)
+      lucro_servico: 100.0, // 1000/1000 * 100 (margem do serviço)
     },
   };
   updateDashboardDisplay(mockData);

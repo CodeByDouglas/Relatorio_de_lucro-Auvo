@@ -17,23 +17,26 @@
     <!-- Header -->
     <header class="header">
       <div class="header-content">
-        <img
-          src="{{ url_for('static', filename='img/Logo_Auvo.png') }}"
-          alt="Auvo"
-          class="logo"
-        />
+        <div class="header-left">
+          <img
+            src="{{ url_for('static', filename='img/Logo_Auvo.png') }}"
+            alt="Auvo"
+            class="logo"
+          />
+          <!-- Navigation Tabs no Header -->
+          <nav class="header-tabs">
+            <button class="header-tab" data-tab="geral">GERAL</button>
+            <button class="header-tab active" data-tab="detalhado">
+              DETALHADO
+            </button>
+          </nav>
+        </div>
         <button class="btn-export">EXPORTAR EXCEL</button>
       </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Navigation Tabs -->
-      <nav class="tabs">
-        <button class="tab" data-tab="geral">GERAL</button>
-        <button class="tab active" data-tab="detalhado">DETALHADO</button>
-      </nav>
-
       <!-- Content Container -->
       <div class="content-container">
         <!-- Table Section -->
@@ -115,13 +118,15 @@
         <section class="filters-section">
           <h2 class="filters-title">FILTROS</h2>
           <div class="filters-grid">
-            <div class="filter-group">
-              <label>Data inicial</label>
-              <input type="date" class="filter-input" />
-            </div>
-            <div class="filter-group">
-              <label>Data final</label>
-              <input type="date" class="filter-input" />
+            <div class="date-filters-row">
+              <div class="filter-group">
+                <label>Data inicial</label>
+                <input type="date" class="filter-input" />
+              </div>
+              <div class="filter-group">
+                <label>Data final</label>
+                <input type="date" class="filter-input" />
+              </div>
             </div>
             <div class="filter-group">
               <label>Produto</label>

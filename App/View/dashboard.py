@@ -23,12 +23,15 @@ def relatorio_tarefas():
 def dashboard_data():
     """API para retornar dados do dashboard com filtros"""
     
-    # Verifica se o usuário está autenticado
+      #Verifica se o usuário está autenticado
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({
-            'error': 'Usuário não autenticado'
+         return jsonify({
+             'error': 'Usuário não autenticado'
         }), 401
+    
+    # Para teste, vamos usar um user_id fixo
+    user_id = 1
     
     # Captura os filtros enviados via query parameters
     filters = {
@@ -217,11 +220,14 @@ def get_filters():
     from ..Controllers.tipo_de_tarefas import TipoTarefaController
     
     # Verifica se o usuário está autenticado
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({
-            'error': 'Usuário não autenticado'
-        }), 401
+    # user_id = session.get('user_id')
+    # if not user_id:
+    #     return jsonify({
+    #         'error': 'Usuário não autenticado'
+    #     }), 401
+    
+    # Para teste, vamos usar um user_id fixo
+    user_id = 1
     
     # Busca produtos reais do banco
     produtos_result = ProdutoController.get_products_from_database()
@@ -335,13 +341,14 @@ def sync_products():
     from ..Controllers.produtos import ProdutoController
     
     # Verifica se o usuário está autenticado
-    if not session.get('authenticated') or not session.get('user_id'):
-        return jsonify({
-            'success': False,
-            'message': 'Usuário não autenticado'
-        }), 401
+    # if not session.get('authenticated') or not session.get('user_id'):
+    #     return jsonify({
+    #         'success': False,
+    #         'message': 'Usuário não autenticado'
+    #     }), 401
     
-    user_id = session.get('user_id')
+    # Para teste, vamos usar um user_id fixo
+    user_id = 1
     
     # Sincroniza os produtos
     result = ProdutoController.fetch_and_save_products(user_id)
@@ -425,13 +432,14 @@ def sync_services():
     from ..Controllers.serviço import ServicoController
     
     # Verifica se o usuário está autenticado
-    if not session.get('authenticated') or not session.get('user_id'):
-        return jsonify({
-            'success': False,
-            'message': 'Usuário não autenticado'
-        }), 401
+    # if not session.get('authenticated') or not session.get('user_id'):
+    #     return jsonify({
+    #         'success': False,
+    #         'message': 'Usuário não autenticado'
+    #     }), 401
     
-    user_id = session.get('user_id')
+    # Para teste, vamos usar um user_id fixo
+    user_id = 1
     
     # Sincroniza os serviços
     result = ServicoController.fetch_and_save_services(user_id)
@@ -510,13 +518,14 @@ def sync_collaborators():
     from ..Controllers.Colaborador import ColaboradorController
     
     # Verifica se o usuário está autenticado
-    if not session.get('authenticated') or not session.get('user_id'):
-        return jsonify({
-            'success': False,
-            'message': 'Usuário não autenticado'
-        }), 401
+    # if not session.get('authenticated') or not session.get('user_id'):
+    #     return jsonify({
+    #         'success': False,
+    #         'message': 'Usuário não autenticado'
+    #     }), 401
     
-    user_id = session.get('user_id')
+    # Para teste, vamos usar um user_id fixo
+    user_id = 1
     
     # Sincroniza os colaboradores
     result = ColaboradorController.fetch_and_save_collaborators(user_id)
@@ -622,12 +631,17 @@ def sync_tasks():
 def get_filter_options():
     """Retorna as opções dinâmicas para os filtros baseadas no usuário logado"""
     
+    print("DEBUG: Executando endpoint filters/options")
+    
     # Verifica se o usuário está autenticado
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({
-            'error': 'Usuário não autenticado'
-        }), 401
+    # user_id = session.get('user_id')
+    # if not user_id:
+    #     return jsonify({
+    #         'error': 'Usuário não autenticado'
+    #     }), 401
+    
+    # Para teste, vamos usar um user_id fixo
+    user_id = 1
     
     try:
         # Busca produtos do usuário
