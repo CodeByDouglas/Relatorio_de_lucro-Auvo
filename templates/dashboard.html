@@ -13,23 +13,24 @@
     <!-- Header -->
     <header class="header">
       <div class="header-content">
-        <img
-          src="{{ url_for('static', filename='img/Logo_Auvo.png') }}"
-          alt="Auvo"
-          class="logo"
-        />
+        <div class="header-left">
+          <img
+            src="{{ url_for('static', filename='img/Logo_Auvo.png') }}"
+            alt="Auvo"
+            class="logo"
+          />
+          <!-- Navigation Tabs no Header -->
+          <nav class="header-tabs">
+            <button class="header-tab active" data-tab="geral">GERAL</button>
+            <button class="header-tab" data-tab="detalhado">DETALHADO</button>
+          </nav>
+        </div>
         <button class="btn-export">EXPORTAR EXCEL</button>
       </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Navigation Tabs -->
-      <nav class="tabs">
-        <button class="tab active" data-tab="geral">GERAL</button>
-        <button class="tab" data-tab="detalhado">DETALHADO</button>
-      </nav>
-
       <!-- Content Container -->
       <div class="content-container">
         <!-- Metrics Section -->
@@ -43,18 +44,24 @@
                   <svg viewBox="0 0 36 36" class="circular-chart">
                     <path
                       class="circle-bg"
+                      data-label="FATURAMENTO TOTAL"
+                      data-type="remaining"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
                       class="circle"
+                      data-label="FATURAMENTO TOTAL"
+                      data-type="progress"
                       stroke-dasharray="100, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="20.35" class="percentage">100%</text>
+                    <text x="18" y="18" class="percentage" data-target="0">
+                      0%
+                    </text>
                   </svg>
                 </div>
               </div>
@@ -65,22 +72,28 @@
             <div class="metric-card">
               <div class="metric-value">R$ 999,99</div>
               <div class="metric-chart">
-                <div class="circular-chart green">
+                <div class="circular-chart purple">
                   <svg viewBox="0 0 36 36" class="circular-chart">
                     <path
                       class="circle-bg"
+                      data-label="FATURAMENTO PRODUTO"
+                      data-type="remaining"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
                       class="circle"
+                      data-label="FATURAMENTO PRODUTO"
+                      data-type="progress"
                       stroke-dasharray="99, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="20.35" class="percentage">99%</text>
+                    <text x="18" y="18" class="percentage" data-target="0">
+                      0%
+                    </text>
                   </svg>
                 </div>
               </div>
@@ -91,7 +104,7 @@
             <div class="metric-card">
               <div class="metric-value">R$ 999,99</div>
               <div class="metric-chart">
-                <div class="circular-chart green">
+                <div class="circular-chart purple">
                   <svg viewBox="0 0 36 36" class="circular-chart">
                     <path
                       class="circle-bg"
@@ -106,7 +119,9 @@
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="20.35" class="percentage">99%</text>
+                    <text x="18" y="18" class="percentage" data-target="0">
+                      0%
+                    </text>
                   </svg>
                 </div>
               </div>
@@ -121,18 +136,24 @@
                   <svg viewBox="0 0 36 36" class="circular-chart">
                     <path
                       class="circle-bg"
+                      data-label="FATURAMENTO SERVIÇO"
+                      data-type="remaining"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
                       class="circle"
+                      data-label="FATURAMENTO SERVIÇO"
+                      data-type="progress"
                       stroke-dasharray="100, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="20.35" class="percentage">100%</text>
+                    <text x="18" y="18" class="percentage" data-target="0">
+                      0%
+                    </text>
                   </svg>
                 </div>
               </div>
@@ -143,22 +164,28 @@
             <div class="metric-card">
               <div class="metric-value">R$ 999,99</div>
               <div class="metric-chart">
-                <div class="circular-chart purple">
+                <div class="circular-chart green">
                   <svg viewBox="0 0 36 36" class="circular-chart">
                     <path
                       class="circle-bg"
+                      data-label="LUCRO PRODUTO"
+                      data-type="remaining"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
                       class="circle"
+                      data-label="LUCRO PRODUTO"
+                      data-type="progress"
                       stroke-dasharray="99, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="20.35" class="percentage">99%</text>
+                    <text x="18" y="18" class="percentage" data-target="0">
+                      0%
+                    </text>
                   </svg>
                 </div>
               </div>
@@ -169,22 +196,28 @@
             <div class="metric-card">
               <div class="metric-value">R$ 999,99</div>
               <div class="metric-chart">
-                <div class="circular-chart purple">
+                <div class="circular-chart green">
                   <svg viewBox="0 0 36 36" class="circular-chart">
                     <path
                       class="circle-bg"
+                      data-label="LUCRO SERVIÇO"
+                      data-type="remaining"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
                       class="circle"
+                      data-label="LUCRO SERVIÇO"
+                      data-type="progress"
                       stroke-dasharray="99, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="20.35" class="percentage">99%</text>
+                    <text x="18" y="18" class="percentage" data-target="0">
+                      0%
+                    </text>
                   </svg>
                 </div>
               </div>
@@ -197,13 +230,15 @@
         <section class="filters-section">
           <h2 class="filters-title">FILTROS</h2>
           <div class="filters-grid">
-            <div class="filter-group">
-              <label>Data inicial</label>
-              <input type="date" class="filter-input" />
-            </div>
-            <div class="filter-group">
-              <label>Data final</label>
-              <input type="date" class="filter-input" />
+            <div class="date-filters-row">
+              <div class="filter-group">
+                <label>Data inicial</label>
+                <input type="date" class="filter-input" />
+              </div>
+              <div class="filter-group">
+                <label>Data final</label>
+                <input type="date" class="filter-input" />
+              </div>
             </div>
             <div class="filter-group">
               <label>Produto</label>
@@ -234,6 +269,9 @@
         </section>
       </div>
     </main>
+
+    <!-- Tooltip for charts -->
+    <div class="chart-tooltip"></div>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
   </body>

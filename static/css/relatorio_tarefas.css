@@ -91,3 +91,55 @@
     font-size: 0.6rem;
   }
 }
+
+/* Estilos específicos para filtros na página de relatório */
+.filters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+  max-width: 100%;
+}
+
+/* Container específico para os campos de data lado a lado */
+.date-filters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  width: 100%;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.filter-input {
+  min-width: 0;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  min-height: 56px;
+}
+
+/* Responsividade específica para relatório */
+@media (max-width: 768px) {
+  .filters-section {
+    padding: 20px;
+    min-width: auto;
+  }
+}
+
+/* Responsive design para campos de data */
+@media (max-width: 640px) {
+  .date-filters-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
