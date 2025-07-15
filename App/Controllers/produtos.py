@@ -179,24 +179,30 @@ class ProdutoController:
                         name = f"Produto {product_id}"
                     
                     # Converte o custo unitário de string para float
-                    # A API pode retornar formato americano ($6.00) ou brasileiro (6,00)
+                    # A API pode retornar vários formatos: $1,000.00, $6.00, 6,00, etc.
                     try:
                         if isinstance(unitary_cost_str, str):
                             # Remove símbolos de moeda e espaços
                             clean_cost = unitary_cost_str.replace('$', '').replace('R$', '').replace('R ', '').strip()
                             
-                            # Se contém vírgula, assume formato brasileiro (6,00)
-                            if ',' in clean_cost and '.' not in clean_cost:
+                            # Formato americano com separador de milhares: 1,000.00
+                            if ',' in clean_cost and '.' in clean_cost:
+                                # Remove vírgulas (separador de milhares) e mantém ponto decimal
+                                clean_cost = clean_cost.replace(',', '')
+                                unitary_cost = float(clean_cost)
+                            # Formato brasileiro: 6,00 (vírgula como decimal)
+                            elif ',' in clean_cost and '.' not in clean_cost:
                                 unitary_cost = float(clean_cost.replace(',', '.'))
-                            # Se contém ponto, assume formato americano (6.00)
+                            # Formato americano simples: 6.00
                             elif '.' in clean_cost:
                                 unitary_cost = float(clean_cost)
-                            # Se não contém nem vírgula nem ponto, tenta converter direto
+                            # Apenas números inteiros
                             else:
                                 unitary_cost = float(clean_cost) if clean_cost else 0.0
                         else:
                             unitary_cost = float(unitary_cost_str) if unitary_cost_str is not None else 0.0
                     except (ValueError, AttributeError) as e:
+                        print(f"DEBUG: Erro ao converter custo '{unitary_cost_str}': {str(e)}")
                         unitary_cost = 0.0
                     
                     # Busca produto existente para este usuário
