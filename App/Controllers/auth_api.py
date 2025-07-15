@@ -215,24 +215,30 @@ class AuthController:
             usuario = Usuario.query.filter_by(chave_app=api_key).first()
             
             if not usuario:
+                print(f"DEBUG: Usuário não encontrado para api_key: {api_key}")
                 return {
                     'success': False,
                     'message': 'Usuário não encontrado',
                     'valid': False
                 }
             
-           
+            print(f"DEBUG: Usuário encontrado. Token obtido em: {usuario.token_obtido_em}")
+            print(f"DEBUG: Hora atual: {datetime.now()}")
+            
             # verificar se passou mais de 28 minutos desde token_obtido_em
             time_diff = datetime.now() - usuario.token_obtido_em
+            print(f"DEBUG: Diferença de tempo: {time_diff.total_seconds()} segundos")
             
-            # Considerando que o token expira em 30 minutos (1680 segundos mantendo 2 mim de margem de erro)
-            if time_diff.total_seconds() > 1.680:
+            # Considerando que o token expira em 30 minutos (1680 segundos mantendo 2 min de margem de erro)
+            if time_diff.total_seconds() > 1680:
+                print(f"DEBUG: Token expirado - diferença: {time_diff.total_seconds()} > 1680")
                 return {
                     'success': True,
                     'message': 'Token expirado',
                     'valid': False
                 }
             
+            print(f"DEBUG: Token válido - diferença: {time_diff.total_seconds()} <= 1680")
             return {
                 'success': True,
                 'message': 'Token válido',

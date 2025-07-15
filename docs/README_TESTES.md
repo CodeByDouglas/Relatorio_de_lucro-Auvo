@@ -12,7 +12,7 @@ Foi implementada uma **bateria completa e funcional de testes unitários** para 
 ### 🗑️ Testes Removidos (Problemas Estruturais)
 
 - `test_produto_controller.py` - Import AuthController inexistente
-- `test_tarefa_controller.py` - Métodos privados inexistentes  
+- `test_tarefa_controller.py` - Métodos privados inexistentes
 - `test_simplified.py` - Métodos inexistentes
 - `test_colaborador_controller.py` - Problemas de estrutura
 - `test_servico_controller.py` - Problemas de estrutura
@@ -44,7 +44,7 @@ tests/
 #### **TestCalculosService**
 
 - ✅ Cálculo de faturamento total
-- ✅ Cálculo de lucro de produtos  
+- ✅ Cálculo de lucro de produtos
 - ✅ Cálculo de lucro de serviços
 - ✅ Cálculo de lucro total
 - ✅ Cálculo de porcentagem de faturamento de produtos
