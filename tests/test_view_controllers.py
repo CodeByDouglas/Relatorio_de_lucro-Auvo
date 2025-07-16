@@ -1,5 +1,5 @@
 """
-Testes unitários para os controllers da View (dashboard.py e home.py)
+Testes unitários para os controllers da View (dashboard.py e login/)
 """
 import unittest
 from unittest.mock import Mock, patch, MagicMock
@@ -269,7 +269,7 @@ class TestHomeController(unittest.TestCase):
     
     def setUp(self):
         """Configuração inicial para cada teste"""
-        self.app = home_app
+        self.app = create_app()
         self.app.config['TESTING'] = True
         self.client = self.app.test_client()
     
@@ -280,7 +280,7 @@ class TestHomeController(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'login', response.data.lower())
     
-    @patch('App.View.home.AuthController')
+    @patch('App.View.login.logar_user.AuthController')
     def test_login_success(self, mock_auth_controller):
         """Testa login com sucesso"""
         mock_auth_controller.authenticate.return_value = {
@@ -298,7 +298,7 @@ class TestHomeController(unittest.TestCase):
         # Deve redirecionar para dashboard
         self.assertEqual(response.status_code, 302)
     
-    @patch('App.View.home.AuthController')
+    @patch('App.View.login.logar_user.AuthController')
     def test_login_failure(self, mock_auth_controller):
         """Testa login com falha"""
         mock_auth_controller.authenticate.return_value = {
@@ -315,7 +315,7 @@ class TestHomeController(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Credenciais invalidas', response.data)
     
-    @patch('App.View.home.session')
+    @patch('App.View.login.logar_user.session')
     def test_logout(self, mock_session):
         """Testa logout"""
         response = self.client.get('/logout')
@@ -340,7 +340,7 @@ class TestHomeController(unittest.TestCase):
         
         self.assertEqual(response.status_code, 400)
     
-    @patch('App.View.home.AuthController')
+    @patch('App.View.login.logar_user.AuthController')
     def test_login_server_error(self, mock_auth_controller):
         """Testa erro de servidor durante login"""
         mock_auth_controller.authenticate.side_effect = Exception('Erro de servidor')
@@ -359,16 +359,11 @@ class TestViewIntegration(unittest.TestCase):
     
     def setUp(self):
         """Configuração inicial para testes de integração"""
-        self.dashboard_app = app
-        self.home_app = home_app
-        
-        self.dashboard_app.config['TESTING'] = True
-        self.home_app.config['TESTING'] = True
-        
-        self.dashboard_client = self.dashboard_app.test_client()
-        self.home_client = self.home_app.test_client()
+        self.app = create_app()
+        self.app.config['TESTING'] = True
+        self.client = self.app.test_client()
     
-    @patch('App.View.home.AuthController')
+    @patch('App.View.login.logar_user.AuthController')
     @patch('App.View.dashboard.session')
     def test_login_to_dashboard_flow(self, mock_dashboard_session, mock_auth_controller):
         """Testa fluxo completo de login para dashboard"""
@@ -380,7 +375,7 @@ class TestViewIntegration(unittest.TestCase):
         }
         
         # Realiza login
-        login_response = self.home_client.post('/login', data={
+        login_response = self.client.post('/login', data={
             'chave_app': 'test_app_key',
             'email': 'test@test.com',
             'senha': 'test_password'
@@ -397,7 +392,7 @@ class TestViewIntegration(unittest.TestCase):
             mock_user.nome = 'Test User'
             mock_usuario.query.get.return_value = mock_user
             
-            dashboard_response = self.dashboard_client.get('/dashboard')
+            dashboard_response = self.client.get('/dashboard')
             self.assertEqual(dashboard_response.status_code, 200)
     
     def test_unauthorized_dashboard_access(self):
@@ -405,7 +400,7 @@ class TestViewIntegration(unittest.TestCase):
         with patch('App.View.dashboard.session') as mock_session:
             mock_session.get.return_value = None
             
-            response = self.dashboard_client.get('/dashboard')
+            response = self.client.get('/dashboard')
             self.assertEqual(response.status_code, 302)  # Redirecionamento
     
     @patch('App.View.dashboard.session')
@@ -414,7 +409,7 @@ class TestViewIntegration(unittest.TestCase):
         # Simula sessão expirada
         mock_session.get.return_value = None
         
-        response = self.dashboard_client.post('/calcular_faturamento_total')
+        response = self.client.post('/calcular_faturamento_total')
         
         self.assertEqual(response.status_code, 401)
         data = response.get_json()

@@ -17,11 +17,19 @@ def create_app():
     
     db.init_app(app)
 
-    from .View.home import home_bp
-    from .View.dashboard import dashboard_bp
+    from .View.login.renderizar_pagina import renderizar_página_bp
+    from .View.login.logar_user import logar_user_bp
+    # REMOVIDO: from .View.dashboard.api_endpoints import dashboard_bp
+    from .View.dashboard.renderizar_pagina import renderizar_pagina_bp
+    from .View.relatorio_tarefas import relatorio_tarefas_bp
+    from .View.filtro.filtrar import filtrar_bp
     
-    app.register_blueprint(home_bp)
-    app.register_blueprint(dashboard_bp)
+    app.register_blueprint(renderizar_página_bp)
+    app.register_blueprint(logar_user_bp)
+    # REMOVIDO: app.register_blueprint(dashboard_bp)
+    app.register_blueprint(renderizar_pagina_bp)
+    app.register_blueprint(relatorio_tarefas_bp)
+    app.register_blueprint(filtrar_bp)
 
     # Importar os modelos para que o SQLAlchemy os reconheça
     from .Models import (

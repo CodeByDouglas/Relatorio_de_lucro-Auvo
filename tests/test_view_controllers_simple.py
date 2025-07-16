@@ -62,7 +62,7 @@ class TestDashboardControllerSimple(unittest.TestCase):
                     mock_tipo.filter_by.return_value.all.return_value = []
                     mock_colaborador.filter_by.return_value.all.return_value = []
                     
-                    response = self.client.get('/api/dashboard/filters/options')
+                    response = self.client.get('/api/filters/options')
                     self.assertIn(response.status_code, [200, 401])
         print("✅ API filters options funcionando")
         

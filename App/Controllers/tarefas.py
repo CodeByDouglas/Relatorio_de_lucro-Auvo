@@ -54,21 +54,18 @@ class TarefaController:
         
         logger.debug(f"✅ Usuário encontrado: {usuario.chave_app}")
         
-        # Verifica se o token ainda é válido (temporariamente desabilitado para debug)
-        # from .auth_api import AuthController
-        # token_validation = AuthController.validate_token(usuario.chave_app)
         
-        # if not token_validation.get('valid'):
-        #     logger.error(f"❌ Token inválido para usuário {user_id}")
-        #     return {
-        #         'success': False,
-        #         'message': 'Token expirado. Faça login novamente.',
-        #         'data': None
-        #     }
+        from .auth_api import AuthController
+        token_validation = AuthController.validate_token(usuario.chave_app)
+
+        if not token_validation.get('valid'):
+            logger.error(f"❌ Token inválido para usuário {user_id}")
+            return {
+                'success': False,
+                'message': 'Token expirado. Faça login novamente.',
+                'data': None
+            }
         
-        # Temporário: aceita token sempre válido durante login
-        logger.debug(f"DEBUG: Tarefas - bypass da validação de token para user_id: {user_id}")
-        token_validation = {'valid': True, 'access_token': usuario.token_bearer}
         
         # Define datas padrão se não fornecidas
         if not start_date:

@@ -37,20 +37,18 @@ class ServicoController:
                 'data': None
             }
         
-        # Verifica se o token ainda é válido (temporariamente desabilitado para debug)
-        # from .auth_api import AuthController
-        # token_validation = AuthController.validate_token(usuario.chave_app)
+       
+        from .auth_api import AuthController
+        token_validation = AuthController.validate_token(usuario.chave_app)
+    
+        if not token_validation.get('valid'):
+             return {
+                 'success': False,
+                 'message': 'Token expirado. Faça login novamente.',
+                 'data': None
+             }
         
-        # if not token_validation.get('valid'):
-        #     return {
-        #         'success': False,
-        #         'message': 'Token expirado. Faça login novamente.',
-        #         'data': None
-        #     }
         
-        # Temporário: aceita token sempre válido durante login
-        print(f"DEBUG: Serviços - bypass da validação de token para user_id: {user_id}")
-        token_validation = {'valid': True, 'access_token': usuario.token_bearer}
         
         # URL da API de serviços
         url = "https://api.auvo.com.br/v2/services/?pageSize=999999999"

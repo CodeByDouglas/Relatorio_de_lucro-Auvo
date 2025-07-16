@@ -25,7 +25,14 @@
             <button class="header-tab" data-tab="detalhado">DETALHADO</button>
           </nav>
         </div>
-        <button class="btn-export">EXPORTAR EXCEL</button>
+        <div class="header-actions">
+          <button class="btn-refresh" onclick="refreshDashboard()">
+            ATUALIZAR
+          </button>
+          <button class="btn-export" onclick="exportarDashboard()">
+            EXPORTAR EXCEL
+          </button>
+        </div>
       </div>
     </header>
 
@@ -38,7 +45,10 @@
           <div class="metrics-grid">
             <!-- Faturamento Total -->
             <div class="metric-card">
-              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-value">
+                R$ {{ "{:,.2f}".format(faturamento_total).replace(',',
+                'X').replace('.', ',').replace('X', '.') }}
+              </div>
               <div class="metric-chart">
                 <div class="circular-chart purple">
                   <svg viewBox="0 0 36 36" class="circular-chart">
@@ -59,8 +69,8 @@
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="18" class="percentage" data-target="0">
-                      0%
+                    <text x="18" y="18" class="percentage" data-target="100">
+                      100%
                     </text>
                   </svg>
                 </div>
@@ -70,7 +80,10 @@
 
             <!-- Faturamento Produto -->
             <div class="metric-card">
-              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-value">
+                R$ {{ "{:,.2f}".format(faturamento_produto).replace(',',
+                'X').replace('.', ',').replace('X', '.') }}
+              </div>
               <div class="metric-chart">
                 <div class="circular-chart purple">
                   <svg viewBox="0 0 36 36" class="circular-chart">
@@ -86,13 +99,17 @@
                       class="circle"
                       data-label="FATURAMENTO PRODUTO"
                       data-type="progress"
-                      stroke-dasharray="99, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="18" class="percentage" data-target="0">
-                      0%
+                    <text
+                      x="18"
+                      y="18"
+                      class="percentage"
+                      data-target="{{ percentuais.faturamento_produto | round | int }}"
+                    >
+                      {{ percentuais.faturamento_produto | round | int }}%
                     </text>
                   </svg>
                 </div>
@@ -102,7 +119,10 @@
 
             <!-- Faturamento Serviço -->
             <div class="metric-card">
-              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-value">
+                R$ {{ "{:,.2f}".format(faturamento_servico).replace(',',
+                'X').replace('.', ',').replace('X', '.') }}
+              </div>
               <div class="metric-chart">
                 <div class="circular-chart purple">
                   <svg viewBox="0 0 36 36" class="circular-chart">
@@ -119,8 +139,13 @@
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="18" class="percentage" data-target="0">
-                      0%
+                    <text
+                      x="18"
+                      y="18"
+                      class="percentage"
+                      data-target="{{ percentuais.faturamento_servico | round | int }}"
+                    >
+                      {{ percentuais.faturamento_servico | round | int }}%
                     </text>
                   </svg>
                 </div>
@@ -130,7 +155,10 @@
 
             <!-- Lucro Total -->
             <div class="metric-card">
-              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-value">
+                R$ {{ "{:,.2f}".format(lucro_total).replace(',',
+                'X').replace('.', ',').replace('X', '.') }}
+              </div>
               <div class="metric-chart">
                 <div class="circular-chart green">
                   <svg viewBox="0 0 36 36" class="circular-chart">
@@ -151,8 +179,13 @@
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="18" class="percentage" data-target="0">
-                      0%
+                    <text
+                      x="18"
+                      y="18"
+                      class="percentage"
+                      data-target="{{ percentuais.margem_lucro | round | int }}"
+                    >
+                      {{ percentuais.margem_lucro | round | int }}%
                     </text>
                   </svg>
                 </div>
@@ -162,7 +195,10 @@
 
             <!-- Lucro Produto -->
             <div class="metric-card">
-              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-value">
+                R$ {{ "{:,.2f}".format(lucro_produto).replace(',',
+                'X').replace('.', ',').replace('X', '.') }}
+              </div>
               <div class="metric-chart">
                 <div class="circular-chart green">
                   <svg viewBox="0 0 36 36" class="circular-chart">
@@ -178,13 +214,17 @@
                       class="circle"
                       data-label="LUCRO PRODUTO"
                       data-type="progress"
-                      stroke-dasharray="99, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="18" class="percentage" data-target="0">
-                      0%
+                    <text
+                      x="18"
+                      y="18"
+                      class="percentage"
+                      data-target="{{ percentuais.lucro_produto | round | int }}"
+                    >
+                      {{ percentuais.lucro_produto | round | int }}%
                     </text>
                   </svg>
                 </div>
@@ -194,7 +234,10 @@
 
             <!-- Lucro Serviço -->
             <div class="metric-card">
-              <div class="metric-value">R$ 999,99</div>
+              <div class="metric-value">
+                R$ {{ "{:,.2f}".format(lucro_servico).replace(',',
+                'X').replace('.', ',').replace('X', '.') }}
+              </div>
               <div class="metric-chart">
                 <div class="circular-chart green">
                   <svg viewBox="0 0 36 36" class="circular-chart">
@@ -210,13 +253,17 @@
                       class="circle"
                       data-label="LUCRO SERVIÇO"
                       data-type="progress"
-                      stroke-dasharray="99, 100"
                       d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <text x="18" y="18" class="percentage" data-target="0">
-                      0%
+                    <text
+                      x="18"
+                      y="18"
+                      class="percentage"
+                      data-target="{{ percentuais.lucro_servico | round | int }}"
+                    >
+                      {{ percentuais.lucro_servico | round | int }}%
                     </text>
                   </svg>
                 </div>
@@ -233,34 +280,34 @@
             <div class="date-filters-row">
               <div class="filter-group">
                 <label>Data inicial</label>
-                <input type="date" class="filter-input" />
+                <input type="date" class="filter-input" id="data-inicio" />
               </div>
               <div class="filter-group">
                 <label>Data final</label>
-                <input type="date" class="filter-input" />
+                <input type="date" class="filter-input" id="data-fim" />
               </div>
             </div>
             <div class="filter-group">
               <label>Produto</label>
-              <select class="filter-input">
+              <select class="filter-input" id="produto">
                 <option value="">Todos os produtos</option>
               </select>
             </div>
             <div class="filter-group">
               <label>Serviço</label>
-              <select class="filter-input">
+              <select class="filter-input" id="servico">
                 <option value="">Todos os serviços</option>
               </select>
             </div>
             <div class="filter-group">
               <label>Tipo de tarefa</label>
-              <select class="filter-input">
+              <select class="filter-input" id="tipo-tarefa">
                 <option value="">Todos os tipos</option>
               </select>
             </div>
             <div class="filter-group">
               <label>Colaborador</label>
-              <select class="filter-input">
+              <select class="filter-input" id="colaborador">
                 <option value="">Todos os colaboradores</option>
               </select>
             </div>
@@ -273,6 +320,27 @@
     <!-- Tooltip for charts -->
     <div class="chart-tooltip"></div>
 
+    <!-- Dados do backend para o JavaScript -->
+    <script>
+      // Dados financeiros vindos do backend
+      window.dashboardData = {
+        faturamento_total: {{ faturamento_total | default(0) }},
+        faturamento_produto: {{ faturamento_produto | default(0) }},
+        faturamento_servico: {{ faturamento_servico | default(0) }},
+        lucro_total: {{ lucro_total | default(0) }},
+        lucro_produto: {{ lucro_produto | default(0) }},
+        lucro_servico: {{ lucro_servico | default(0) }},
+        percentuais: {
+          faturamento_produto: {{ percentuais.faturamento_produto | default(0) }},
+          faturamento_servico: {{ percentuais.faturamento_servico | default(0) }},
+          lucro_produto: {{ percentuais.lucro_produto | default(0) }},
+          lucro_servico: {{ percentuais.lucro_servico | default(0) }},
+          margem_lucro: {{ percentuais.margem_lucro | default(0) }}
+        }
+      };
+    </script>
+
+    <script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
   </body>
 </html>

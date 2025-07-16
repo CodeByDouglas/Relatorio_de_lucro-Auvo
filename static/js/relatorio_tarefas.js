@@ -30,22 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const consultarBtn = document.querySelector(".btn-consultar");
   if (consultarBtn) {
     consultarBtn.addEventListener("click", function () {
-      // Get filter values
-      const filters = {
-        dataInicial: document.querySelector(".filter-group:nth-child(1) input")
-          .value,
-        dataFinal: document.querySelector(".filter-group:nth-child(2) input")
-          .value,
-        produto: document.querySelector(".filter-group:nth-child(3) select")
-          .value,
-        servico: document.querySelector(".filter-group:nth-child(4) select")
-          .value,
-        tipoTarefa: document.querySelector(".filter-group:nth-child(5) select")
-          .value,
-        colaborador: document.querySelector(".filter-group:nth-child(6) select")
-          .value,
-      };
-
+      // Get filter values using FilterManager
+      const filters = filterManager.collectFilterValues();
       console.log("Filters applied:", filters);
 
       // Fazer requisição para API
@@ -62,81 +48,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Load filter options from API
-  loadFilterOptions();
-
-  // Função para carregar opções dos filtros
-  function loadFilterOptions() {
-    fetch("/api/dashboard/filters/options")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Dados dos filtros recebidos:", data);
-
-        // Popular filtros corretamente identificando cada campo pelo label
-        const filterGroups = document.querySelectorAll(".filter-group");
-        filterGroups.forEach((group) => {
-          const label = group.querySelector("label");
-          const select = group.querySelector("select");
-
-          if (label && select) {
-            const labelText = label.textContent.toLowerCase().trim();
-
-            if (labelText.includes("produto")) {
-              // Limpa opções existentes exceto a primeira
-              while (select.children.length > 1) {
-                select.removeChild(select.lastChild);
-              }
-
-              data.produtos.forEach((produto) => {
-                const option = document.createElement("option");
-                option.value = produto.id;
-                option.textContent = produto.nome;
-                select.appendChild(option);
-              });
-            } else if (labelText.includes("serviço")) {
-              // Limpa opções existentes exceto a primeira
-              while (select.children.length > 1) {
-                select.removeChild(select.lastChild);
-              }
-
-              data.servicos.forEach((servico) => {
-                const option = document.createElement("option");
-                option.value = servico.id;
-                option.textContent = servico.nome;
-                select.appendChild(option);
-              });
-            } else if (labelText.includes("tipo")) {
-              // Limpa opções existentes exceto a primeira
-              while (select.children.length > 1) {
-                select.removeChild(select.lastChild);
-              }
-
-              data.tipos_tarefa.forEach((tipo) => {
-                const option = document.createElement("option");
-                option.value = tipo.id;
-                option.textContent = tipo.nome;
-                select.appendChild(option);
-              });
-            } else if (labelText.includes("colaborador")) {
-              // Limpa opções existentes exceto a primeira
-              while (select.children.length > 1) {
-                select.removeChild(select.lastChild);
-              }
-
-              data.colaboradores.forEach((colaborador) => {
-                const option = document.createElement("option");
-                option.value = colaborador.id;
-                option.textContent = colaborador.nome;
-                select.appendChild(option);
-              });
-            }
-          }
-        });
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar opções de filtro:", error);
-      });
-  }
+  // Initialize FilterManager and load filter options
+  const filterManager = new FilterManager();
+  filterManager.initialize();
 
   // Função para exportar tabela para Excel
   function exportTableToExcel() {
@@ -165,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Função para buscar dados detalhados
   function fetchDetailedData(filters) {
     // Implementar chamada para API
-    fetch("/api/dashboard/detailed-data?" + new URLSearchParams(filters))
+    fetch("/api/relatorio/detailed-data?" + new URLSearchParams(filters))
       .then((response) => response.json())
       .then((data) => {
         console.log("Dados recebidos:", data);

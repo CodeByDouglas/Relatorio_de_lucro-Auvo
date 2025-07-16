@@ -68,8 +68,15 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-export {
-  background: #10b981;
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-refresh {
+  background: #3b82f6;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -80,8 +87,8 @@ body {
   transition: background 0.3s;
 }
 
-.btn-export:hover {
-  background: #059669;
+.btn-refresh:hover {
+  background: #2563eb;
 }
 
 /* Main Content */
@@ -150,7 +157,7 @@ body {
   fill: none;
   stroke-width: 2.8;
   stroke-linecap: round;
-  animation: progress 1s ease-in-out forwards;
+  /* Removido: animation: progress 1s ease-in-out forwards; */
 }
 
 .purple .circle {
@@ -285,13 +292,6 @@ select.filter-input {
 
 .btn-consultar:hover {
   background: #059669;
-}
-
-/* Animations */
-@keyframes progress {
-  0% {
-    stroke-dasharray: 0 100;
-  }
 }
 
 /* Tooltip Styles */
